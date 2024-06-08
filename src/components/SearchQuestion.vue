@@ -5,11 +5,12 @@
       <div class="form-row">
         <div class="form-group" style="display: flex; align-items: center;">
           <label for="tag" style="margin-left: 30px; align-self: flex-start;">关键字:</label>
-          <input type="text" id="tag" v-model="tag" placeholder="请输入关键字" style="margin-left: 20px;width: 800px;" />
+          <input type="text" id="tag" v-model="tag" placeholder="请输入关键字" style="margin-left: 20px;width: 700px;" />
         </div>
         <div class="form-group">
           <label for="question-type">题目类型:</label>
           <select id="question-type" v-model="questionType">
+            <option value="">全部</option>
             <option value="选择题">选择题</option>
             <option value="判断题">判断题</option>
             <option value="填空题">填空题</option>
@@ -19,34 +20,152 @@
         <div class="form-group">
           <label for="difficulty">难度等级:</label>
           <select id="difficulty" v-model="difficulty">
+            <option value="">全部</option>
             <option value="简单">简单</option>
             <option value="中等">中等</option>
             <option value="困难">困难</option>
           </select>
         </div>
+        <div class="form-group">
+          <label for="difficulty">我的题目</label>
+            <el-checkbox v-model="myQuestions" sytle="width: 10px;" label="" value="Value1" border />
+        </div>
+        
         <button @click="searchQuestions" class="form-group" style="padding: 20px 0px 20px 35px; font-size: 18px;">查询题目</button>
+
       </div>
       
     </div>
-
+                    <!-- 表格数据绑定和默认宽度 -->
+              
+        <el-table :data="tableData" style="width:100%; margin-left: 6%;">
+        <!-- 每一个列，prop为主键，label为文案 -->
+        <!-- 索引 -->
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column prop="question" label="问题" width="300"></el-table-column>
+        <el-table-column prop="questionType" label="题型" width="180"></el-table-column>
+        <el-table-column prop="tag" label="标签" width="180"></el-table-column>
+        <el-table-column prop="difficulty" label="难度" width="120"></el-table-column>
+        <el-table-column prop="createdBy" label="创建人" width="120" style="margin-left: 50%;"></el-table-column>
+        <!-- <el-table-column prop="answer" label="答案" width="180"></el-table-column>
+        <el-table-column prop="analysis" label="解析" width="300"></el-table-column> -->
+        <el-table-column label="操作" width="220"   header-align="center">
+            <template #default="scope">
+              <div style="display: flex; justify-content: space-between;">
+                <el-button size="small" type="primary" @click="composePaper(scope.$index, scope.row)">组卷</el-button>
+                <el-button size="small" type="success"  plain @click="dialogTableVisible = true; handleEdit(scope.$index, scope.row)">编辑</el-button>
+                <el-button size="small" type="danger" :disabled="(user.username !== scope.row.createdBy)&&(user.role!=='ADMIN')" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
     <div class="questions-list">
-      <ul>
+      
+      <!-- <ul>
         <li v-for="question in paginatedQuestions" :key="question.id">
           {{ question.question }}
         </li>
-      </ul>
-      <div class="pagination">
+      </ul> -->
+      <!-- <div class="pagination">
         <button @click="prevPage" :disabled="currentPage === 1" style="padding: 5px 10px;">上一页</button>
         <button @click="nextPage" :disabled="currentPage === totalPages" style="padding: 5px 10px;">下一页</button>
-      </div>
+      </div> -->
+      
+	<!-- <el-pagination
+	:current-page="searchData.current"
+	:page-size="searchData.limit"
+	:total="total"
+	:pager-count="6"
+	style="text-align: center;margin-top: 20px;"
+	layout="jumper, prev, pager, next, total"
+	@current-change="getData" /> -->
+       <el-dialog v-model="dialogTableVisible" title="编辑题目" width="800">
+    <el-table :data="questionData" style="width: 100%" border @cell-click="showUnitInput">
+      <el-table-column prop="description" label="问题" width="300">
+        <template #default="{ row, column }">
+          <el-input
+            v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
+            @blur="blurValueInput(row, column)"
+            @keyup.enter="blurValueInput(row, column)"
+            v-model="row.description"
+          />
+          <span v-else>{{ row.description }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="type" label="题型" width="180">
+        <template #default="{ row, column }">
+          <el-input
+            v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
+            @blur="blurValueInput(row, column)"
+            @keyup.enter="blurValueInput(row, column)"
+            v-model="row.type"
+          />
+          <span v-else>{{ row.type }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="tag" label="标签" width="180">
+        <template #default="{ row, column }">
+          <el-input
+            v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
+            @blur="blurValueInput(row, column)"
+            @keyup.enter="blurValueInput(row, column)"
+            v-model="row.tag"
+          />
+          <span v-else>{{ row.tag }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="difficultLevel" label="难度" width="120">
+        <template #default="{ row, column }">
+          <el-input
+            v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
+            @blur="blurValueInput(row, column)"
+            @keyup.enter="blurValueInput(row, column)"
+            v-model="row.difficultLevel"
+          />
+          <span v-else>{{ row.difficultLevel }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="answer" label="答案" width="120">
+        <template #default="{ row, column }">
+          <el-input
+            v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
+            @blur="blurValueInput(row, column)"
+            @keyup.enter="blurValueInput(row, column)"
+            v-model="row.answer"
+          />
+          <span v-else>{{ row.answer }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="120">
+        <template #default="{ row }">
+          <el-button type="primary" link @click="handleSubmit(row)">确定</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </el-dialog>
     </div>
 
 
   </div>
 </template>
 
-<script>
+<script >
 import { mapActions, mapState } from 'vuex';
+import { ElMessage } from 'element-plus';
+import { ref } from 'vue'
+let tableRowEditId = ref(null) // 控制可编辑的每一行
+let tableColumnEditIndex = ref(null) //控制可编辑的每一列
+
+const showUnitInput = (row, column) => {
+  //赋值给定义的变量
+  tableRowEditId.value = row.id //确定点击的单元格在哪行 如果数据中有ID可以用ID判断，没有可以使用其他值判断，只要能确定是哪一行即可
+  tableColumnEditIndex.value = column.id //确定点击的单元格在哪列 
+}
+const blurValueInput = (row, column) => {
+  // tableRowEditId.value = null
+  // tableColumnEditIndex.value = null
+  //在此处调接口传数据
+}
 
 export default {
   name: 'SearchQuestion',
@@ -56,11 +175,58 @@ export default {
       filterQuestionType: '',
       filterDifficulty: '',
       currentPage: 1,
-      pageSize: 5
+      dialogTableVisible: false,
+      myQuestions: false,
+      pageSize: 5,
+            tableRowEditId: null, // 控制可编辑的每一行
+      tableColumnEditIndex: null, // 控制可编辑的每一列
+    //   tableData: [
+    //     { 
+    //       question: '这是一个假问题?',
+    //       questionType: '选择题',
+    //       tag: '物理',
+    //       difficulty: '中等',
+    //       analysis: '这是一个问题的解析',
+    //       createdBy: "小张",
+    //       id: 5
+    //     },
+    //             { 
+    //       question: '这是一个假问题2?',
+    //       questionType: '选择题',
+    //       tag: '物理',
+    //       difficulty: '中等',
+    //       analysis: '这是一个问题的解析',
+    //       createdBy: "小张",
+    //       id: 3
+    //     }
+    //   ]
     };
   },
   computed: {
-    ...mapState(['questions']),
+    ...mapState(['questions', 'paper', 'user', 'question']),
+    questionData(){
+       return this.question.map(question => ({
+        description: question.description,
+        type: question.type,
+        tag: question.tag,
+        difficultLevel: question.difficultLevel,
+        answer: question.answer,
+        analysis:question.analysis,
+        createdBy: question.createdBy,
+        id: question.id,
+        }));
+    },
+    tableData() {
+      return this.questions.map(question => ({
+        question: question.description,
+        questionType: question.type,
+        tag: question.tag,
+        difficulty: question.difficultLevel,
+        analysis: question.analysis,
+        createdBy: question.createdBy,
+           id: question.id,
+      }));
+    },
     filteredQuestions() {
       return this.questions.filter(question => {
         const matchesKeyword = question.question.includes(this.searchKeyword);
@@ -78,9 +244,61 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['fetchQuestions']),
+    ...mapActions(['fetchQuestions', 'deleteQuestion', 'addQuestionToPaper', 'removeQuestionFromPaper', 'fetchFileteredQuestions', 'fetchFileteredQuestion', 'updateQuestion']),
+    // viewQuestion(id){
+
+      // },
+    showUnitInput(row, column) {
+      // 赋值给定义的变量
+      this.tableRowEditId = row.id; // 确定点击的单元格在哪行
+      this.tableColumnEditIndex = column.id; // 确定点击的单元格在哪列
+    },
+    blurValueInput(row, column) {
+      this.tableRowEditId = null;
+      this.tableColumnEditIndex = null;
+      // 在此处调接口传数据
+    },
+    handleSubmit(row) {
+      console.log(this.questions)
+      // console.log('row',row)
+      // console.log('row properties:', Object.keys(row));
+      // const plainRow = JSON.parse(JSON.stringify(row));
+      const newQuestion = {
+        description: row.description,
+        type: row.type,
+        answer:row.answer,
+        difficultLevel: row.difficultLevel,
+        tag: row.tag,
+        analysis: row.analysis,
+      };
+      console.log(newQuestion)
+      // console.log(this.questions)
+      this.updateQuestion({'id':row.id, 'question':newQuestion});
+      this.success('提交成功');
+      this.fetchQuestions();
+    },
     searchQuestions() {
-      this.currentPage = 1;
+      // this.currentPage = 1;
+      
+      // Initialize an empty queryParams object
+      const queryParams = {};
+      
+      // Add fields to queryParams only if they are not empty
+      if (this.tag) {
+        queryParams.keywords = this.tag;
+      }
+      if (this.questionType) {
+        queryParams.type = this.questionType;
+      }
+      if (this.difficulty) {
+        queryParams.difficultLevel = this.difficulty;
+      }
+      if (this.myQuestions) {
+        queryParams.username = this.user.username;
+      }
+
+      // Fetch filtered questions with the constructed queryParams
+      this.fetchFileteredQuestions(queryParams);
     },
     prevPage() {
       if (this.currentPage > 1) {
@@ -91,11 +309,57 @@ export default {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
       }
+    },
+    composePaper(index, row) {
+      const questionId = row.id; // 获取 question id
+      // this.addQuestionToPaper(row);
+      if (!this.paper.some(item => item.id === row.id)) {
+        this.paper.push(row);
+        this.success('加入成功');
+      } else {
+        this.warning('已加入');
+      }
+      console.log('组卷操作:', questionId);
+      console.log(row)
+      console.log(this.paper)
+      
+    },
+    handleEdit(index, row) {
+      // 处理编辑逻辑
+      this.fetchFileteredQuestion(row.id)
+      console.log('编辑操作:', index, row);
+
+    },
+    handleDelete(index, row) {
+      const questionId = row.id; // 获取 question id
+      this.deleteQuestion(questionId);
+      // this.fetchQuestions();
+      this.success('删除成功');
+      console.log('删除操作:', questionId);
+    },
+    success(ms){
+      ElMessage({
+        message: ms,
+        type: 'success',
+        customClass: 'custom-message-class',
+        duration: 3000,
+        showClose: true
+      });
+    },
+    warning(ms){
+      ElMessage({
+        message: ms,
+        type: 'warning',
+        customClass: 'custom-message-class',
+        duration: 3000,
+        showClose: true
+      });
     }
   },
   mounted() {
     this.fetchQuestions();
   }
+
 };
 </script>
 

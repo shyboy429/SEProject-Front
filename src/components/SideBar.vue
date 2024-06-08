@@ -17,7 +17,7 @@
         <li>课程管理</li>
         <li>题目管理</li>
         <li>考试管理</li>
-        <li>试卷管理</li>
+        <li @click="showContent('paper')">试卷管理</li>
       </ul>
     </nav>
   </aside>

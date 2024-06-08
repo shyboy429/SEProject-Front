@@ -26,7 +26,7 @@
         </div>
         <div class="form-group" v-if="questionType === '选择题' || questionType === '判断题'">
           <label for="correct-option">正确选项:</label>
-          <select id="correct-option" v-model="correctOption">
+          <select id="correct-option" v-model="answer">
             <option v-if="questionType === '选择题'" value="A">A</option>
             <option v-if="questionType === '选择题'" value="B">B</option>
             <option v-if="questionType === '选择题'" value="C">C</option>
@@ -64,14 +64,14 @@
         <label for="analysis">解析:</label>
         <textarea id="analysis" v-model="analysis" placeholder="请输入答案解析"></textarea>
       </div>
-      <button type="submit" class="submit-button">立即添加</button>
+      <button type="submit" @click="submit" class="submit-button">立即添加</button>
     </form>
   </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
-
+import { mapActions, mapState} from 'vuex';
+import { ElMessage } from 'element-plus';
 export default {
   name: 'InputQuestion',
   data() {
@@ -79,7 +79,6 @@ export default {
       questionType: '选择题',
       tag: '',
       difficulty: '',
-      correctOption: '',
       question: '',
       optionA: '',
       optionB: '',
@@ -89,24 +88,44 @@ export default {
       analysis: ''
     };
   },
+  computed: {
+    ...mapState(['questions', 'paper', 'user', 'question']),
+
+  },
   methods: {
     ...mapActions(['addQuestion']),
+    submit (){
+      ElMessage({
+        message: '提交成功',
+        type: 'success',
+        customClass: 'custom-message-class',
+        duration: 3000,
+        showClose: true
+      });
+      
+    },
+
     async submitQuestion() {
+      const optionsText = `A.${this.optionA}\nB.${this.optionB}\nC.${this.optionC}\nD.${this.optionD}`;
+      var _description = null;
+      if (this.questionType === "选择题"){
+         _description = `${this.question}\n${optionsText}`;
+      }
+      else {
+         _description = `${this.question}`;
+      }
+      
       const newQuestion = {
-        questionType: this.questionType,
-        tag: this.tag,
-        difficulty: this.difficulty,
-        correctOption: this.correctOption,
-        question: this.question,
-        options: {
-          A: this.optionA,
-          B: this.optionB,
-          C: this.optionC,
-          D: this.optionD
-        },
+        id: "",
+        description: _description,
+        type: this.questionType,
         answer: this.answer,
-        analysis: this.analysis
+        difficultLevel: this.difficulty,
+        tag: this.tag,
+        analysis: this.analysis,
+        createdBy: this.user.username
       };
+
       await this.addQuestion(newQuestion);
       this.resetForm();
     },
@@ -114,7 +133,6 @@ export default {
       this.questionType = '选择题';
       this.tag = '';
       this.difficulty = '';
-      this.correctOption = '';
       this.question = '';
       this.optionA = '';
       this.optionB = '';

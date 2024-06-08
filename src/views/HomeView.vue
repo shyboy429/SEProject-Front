@@ -11,6 +11,7 @@
 import SideBar from '../components/SideBar.vue';
 import InputQuestion from '../components/InputQuestion.vue';
 import SearchQuestion from '../components/SearchQuestion.vue';
+import PaperManagement from '../components/PaperManagement.vue';
 
 export default {
   name: 'Home',
@@ -18,6 +19,7 @@ export default {
     SideBar,
     InputQuestion,
     SearchQuestion,
+    PaperManagement
   },
   data() {
     return {
@@ -30,6 +32,8 @@ export default {
         this.currentContent = 'InputQuestion';
       } else if (contentType === 'search') {
         this.currentContent = 'SearchQuestion';
+      } else if (contentType = 'paper'){
+        this.currentContent = 'PaperManagement'
       }
     },
   },

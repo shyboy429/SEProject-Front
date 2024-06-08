@@ -36,7 +36,7 @@ export default {
       try {
         const result = await this.login({ username: this.username, password: this.password });
         if (result.success) {
-          this.$router.push('/dashboard');
+          this.$router.push('/home');
         } else {
           alert('登录失败：' + result.message);
         }
