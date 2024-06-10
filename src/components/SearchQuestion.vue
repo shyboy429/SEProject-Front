@@ -38,27 +38,37 @@
     </div>
                     <!-- 表格数据绑定和默认宽度 -->
               
-        <el-table :data="tableData" style="width:100%; margin-left: 6%;">
-        <!-- 每一个列，prop为主键，label为文案 -->
-        <!-- 索引 -->
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="question" label="问题" width="300"></el-table-column>
-        <el-table-column prop="questionType" label="题型" width="180"></el-table-column>
-        <el-table-column prop="tag" label="标签" width="180"></el-table-column>
-        <el-table-column prop="difficulty" label="难度" width="120"></el-table-column>
-        <el-table-column prop="createdBy" label="创建人" width="120" style="margin-left: 50%;"></el-table-column>
-        <!-- <el-table-column prop="answer" label="答案" width="180"></el-table-column>
-        <el-table-column prop="analysis" label="解析" width="300"></el-table-column> -->
-        <el-table-column label="操作" width="220"   header-align="center">
-            <template #default="scope">
-              <div style="display: flex; justify-content: space-between;">
-                <el-button size="small" type="primary" @click="composePaper(scope.$index, scope.row)">组卷</el-button>
-                <el-button size="small" type="success"  plain @click="dialogTableVisible = true; handleEdit(scope.$index, scope.row)">编辑</el-button>
-                <el-button size="small" type="danger" :disabled="(user.username !== scope.row.createdBy)&&(user.role!=='ADMIN')" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
+  <el-table :data="tableData" style="width: 100%; margin-left: 6%;">
+    <el-table-column type="index" width="50"></el-table-column>
+    <el-table-column prop="question" label="问题" width="300">
+      <template #default="scope">
+        <el-tooltip
+          class="item"
+          effect="light"
+          :content="scope.row.question"
+          placement="bottom-start"
+          :fallback-placements="['top-start']"
+          :hide-after="0"
+          popper-class="custom-tooltip"
+        >
+          <div class="ellipsis">{{ scope.row.question }}</div>
+        </el-tooltip>
+      </template>
+    </el-table-column>
+    <el-table-column prop="questionType" label="题型" width="180"></el-table-column>
+    <el-table-column prop="tag" label="标签" width="180"></el-table-column>
+    <el-table-column prop="difficulty" label="难度" width="120"></el-table-column>
+    <el-table-column prop="createdBy" label="创建人" width="120"></el-table-column>
+    <el-table-column label="操作" width="220" header-align="center">
+      <template #default="scope">
+        <div style="display: flex; justify-content: space-between;">
+          <el-button size="small" type="primary" @click="composePaper(scope.$index, scope.row)">组卷</el-button>
+          <el-button size="small" type="success" plain @click="dialogTableVisible = true; handleEdit(scope.$index, scope.row)">编辑</el-button>
+          <el-button size="small" type="danger" :disabled="(user.username !== scope.row.createdBy) && (user.role !== 'ADMIN')" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+        </div>
+      </template>
+    </el-table-column>
+  </el-table>
     <div class="questions-list">
       
       <!-- <ul>
@@ -79,7 +89,7 @@
 	style="text-align: center;margin-top: 20px;"
 	layout="jumper, prev, pager, next, total"
 	@current-change="getData" /> -->
-       <el-dialog v-model="dialogTableVisible" title="编辑题目" width="800">
+       <el-dialog v-model="dialogTableVisible" title="编辑题目" width="1050" style="margin-left:20%">
     <el-table :data="questionData" style="width: 100%" border @cell-click="showUnitInput">
       <el-table-column prop="description" label="问题" width="300">
         <template #default="{ row, column }">
@@ -136,7 +146,7 @@
           <span v-else>{{ row.answer }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="120">
+      <el-table-column label="操作" width="120" header-align="center">
         <template #default="{ row }">
           <el-button type="primary" link @click="handleSubmit(row)">确定</el-button>
         </template>
@@ -145,8 +155,17 @@
   </el-dialog>
     </div>
 
-
+  <div class="pagination">
+    <el-pagination
+      :page-size="10"
+      :pager-count="11"
+      layout="prev, pager, next"
+      :total="totalPages"
+      @current-change="handlePageChange"
+    />
   </div>
+  </div>
+
 </template>
 
 <script >
@@ -173,6 +192,7 @@ export default {
     return {
       searchKeyword: '',
       filterQuestionType: '',
+      queryParams : {},
       filterDifficulty: '',
       currentPage: 1,
       dialogTableVisible: false,
@@ -180,6 +200,7 @@ export default {
       pageSize: 5,
             tableRowEditId: null, // 控制可编辑的每一行
       tableColumnEditIndex: null, // 控制可编辑的每一列
+      totalPages: 5,
     //   tableData: [
     //     { 
     //       question: '这是一个假问题?',
@@ -203,7 +224,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['questions', 'paper', 'user', 'question']),
+    ...mapState(['questions', 'paper', 'user', 'question', 'questionsPages']),
     questionData(){
        return this.question.map(question => ({
         description: question.description,
@@ -235,8 +256,13 @@ export default {
         return matchesKeyword && matchesType && matchesDifficulty;
       });
     },
+    computedTotal(){
+      return this.totalPages*10;
+    },
     totalPages() {
-      return Math.ceil(this.filteredQuestions.length / this.pageSize);
+      return this.questionsPages;
+      console.log("this", this.questionsPages);
+      return 1000;
     },
     paginatedQuestions() {
       const start = (this.currentPage - 1) * this.pageSize;
@@ -244,7 +270,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['fetchQuestions', 'deleteQuestion', 'addQuestionToPaper', 'removeQuestionFromPaper', 'fetchFileteredQuestions', 'fetchFileteredQuestion', 'updateQuestion']),
+    ...mapActions(['fetchQuestions', 'deleteQuestion', 'addQuestionToPaper', 'removeQuestionFromPaper', 'fetchFileteredQuestions', 'fetchFileteredQuestion', 'updateQuestion', 'fetchQuestionsPages']),
     // viewQuestion(id){
 
       // },
@@ -258,7 +284,7 @@ export default {
       this.tableColumnEditIndex = null;
       // 在此处调接口传数据
     },
-    handleSubmit(row) {
+    async handleSubmit(row) {
       console.log(this.questions)
       // console.log('row',row)
       // console.log('row properties:', Object.keys(row));
@@ -273,42 +299,65 @@ export default {
       };
       console.log(newQuestion)
       // console.log(this.questions)
-      this.updateQuestion({'id':row.id, 'question':newQuestion});
+      await this.updateQuestion({'id':row.id, 'question':newQuestion});
       this.success('提交成功');
-      this.fetchQuestions();
+      this.queryParams.pageNum = this.currentPage;
+      this.fetchQuestions(this.queryParams);
     },
     searchQuestions() {
       // this.currentPage = 1;
       
       // Initialize an empty queryParams object
-      const queryParams = {};
+      
       
       // Add fields to queryParams only if they are not empty
       if (this.tag) {
-        queryParams.keywords = this.tag;
-      }
-      if (this.questionType) {
-        queryParams.type = this.questionType;
-      }
-      if (this.difficulty) {
-        queryParams.difficultLevel = this.difficulty;
-      }
-      if (this.myQuestions) {
-        queryParams.username = this.user.username;
+        this.queryParams.keywords = this.tag;
+      } else {
+        delete this.queryParams.keywords;
       }
 
+      if (this.questionType) {
+        this.queryParams.type = this.questionType;
+      } else {
+        delete this.queryParams.type;
+      }
+
+      if (this.difficulty) {
+        this.queryParams.difficultLevel = this.difficulty;
+      } else {
+        delete this.queryParams.difficultLevel;
+      }
+
+      if (this.myQuestions) {
+        this.queryParams.username = this.user.username;
+      } else {
+        delete this.queryParams.username;
+      }
+      delete this.queryParams.pageNum;
       // Fetch filtered questions with the constructed queryParams
-      this.fetchFileteredQuestions(queryParams);
+      this.fetchFileteredQuestions(this.queryParams);
+      this.queryParams.pageNum = 1;
+      this.fetchQuestions(this.queryParams);
     },
     prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--;
+        
+        this.fetchQuestions(this.currentPage);
       }
     },
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
+        this.fetchQuestions(this.currentPage);
       }
+    },
+    handlePageChange(page) {
+      console.log('Page changed to:', page); // 日志记录当前页码
+      this.currentPage = page;
+      this.queryParams.pageNum = page;
+      this.fetchQuestions(this.queryParams); // 触发 Vuex action 以获取新页数据
     },
     composePaper(index, row) {
       const questionId = row.id; // 获取 question id
@@ -330,10 +379,11 @@ export default {
       console.log('编辑操作:', index, row);
 
     },
-    handleDelete(index, row) {
+    async handleDelete(index, row) {
       const questionId = row.id; // 获取 question id
-      this.deleteQuestion(questionId);
-      // this.fetchQuestions();
+      await this.deleteQuestion(questionId);
+      this.queryParams.pageNum = this.currentPage;
+      await this.fetchQuestions(this.queryParams);
       this.success('删除成功');
       console.log('删除操作:', questionId);
     },
@@ -357,7 +407,10 @@ export default {
     }
   },
   mounted() {
-    this.fetchQuestions();
+    this.queryParams.pageNum = this.currentPage;
+    this.fetchQuestions(this.queryParams);
+    this.fetchQuestionsPages();
+    console.log('apagegas',this.totalPages);
   }
 
 };
@@ -478,10 +531,12 @@ textarea#question, textarea#answer, textarea#analysis {
 .pagination {
   position: absolute;
   bottom: 40px; /* 距离底部的距离 */
-  left: 57%; /* 水平居中 */
+  left: 58%; /* 水平居中 */
   transform: translateX(-50%); /* 水平居中 */
   display: flex;
-  justify-content: space-between;
+    justify-content: center;
+  align-items: center;
+  /* justify-content: space-between; */
   width: 200px; /* 指定pagination的宽度 */
 }
 
@@ -497,6 +552,20 @@ textarea#question, textarea#answer, textarea#analysis {
 
 .pagination button:disabled {
   background-color: #a0cfff;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.custom-tooltip {
+  max-width: 200px; /* 设置最大宽度 */
+  white-space: pre-wrap; /* 保证文本自动换行 */
+  word-wrap: break-word; /* 自动换行 */
+  word-break: break-all; /* 强制换行 */
 }
 
 </style>

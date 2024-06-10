@@ -14,6 +14,8 @@ const store = createStore({
     papers: [],
     exams: [], // 存储考试列表
     question:[],
+    questionsPages:1,
+    papersPages:1,
     user: null, // 存储当前登录用户
   },
   mutations: {
@@ -68,6 +70,12 @@ const store = createStore({
     setUser(state, user) {
       state.user = user;
     },
+    setQuestionsPages(state, pagenum){
+      state.questionsPages = pagenum;
+    },
+    setPapersPages(state, pagenum){
+      state.papersPages = pagenum;
+    },
     add(){
 
     }
@@ -81,8 +89,8 @@ const store = createStore({
         // console.log(id);
         console.log('update');
         const response = await axios.delete('/api/papers/'+PaperID);
-        const response2 = await axios.get('/api/papers');
-        commit('setPapers', response2.data);
+        // const response2 = await axios.get('/api/papers');
+        // commit('setPapers', response2.data);
         commit('add');
       } catch (error) {
         // 请求失败时，直接添加传入的数据到题目列表
@@ -95,8 +103,8 @@ const store = createStore({
         console.log('update');
         const response = await axios.post('/api/papers/'+dict.paperid+'/question/'+dict.questionid);
         commit('setPaperQuestions', response.data);
-        const response2 = await axios.get('/api/papers');
-        commit('setPapers', response2.data);
+        // const response2 = await axios.get('/api/papers');
+        // commit('setPapers', response2.data);
         commit('add');
       } catch (error) {
         // 请求失败时，直接添加传入的数据到题目列表
@@ -108,8 +116,8 @@ const store = createStore({
         console.log(id);
         console.log('delete');
         const response = await axios.delete('/api/questions/'+id);
-        const response2= await axios.get('/api/questions');
-        commit('setQuestions', response2.data);
+        // const response2= await axios.get('/api/questions');
+        // commit('setQuestions', response2.data);
         commit('add');
       } catch (error) {
         // 请求失败时，直接添加传入的数据到题目列表
@@ -139,9 +147,14 @@ const store = createStore({
     },
 
     // 获取paper列表
-    async fetchPapers({ commit }) {
+    async fetchPapers({ commit }, pageNum) {
       try {
-        const response = await axios.get('/api/papers');
+        var response;
+        if (pageNum!==undefined){
+          response = await axios.get('/api/papers?pageNum='+ pageNum);
+        }else {
+          response = await axios.get('/api/papers');
+        }
         commit('setPapers', response.data);
       } catch (error) {
         // 请求失败时，设置空数据
@@ -168,20 +181,67 @@ const store = createStore({
           .join('&');
   
         const response = await axios.get(`/api/questions/search?${queryString}`);
+        // commit('setQuestions', response.data); // Assuming you have a Vuex store
+        commit('setQuestionsPages', response.data.length);
+      } catch (error) {
+        // Handle request failure
+        // commit('setQuestions', []);
+      }
+    },
+    // 获取题目列表
+    async fetchQuestions({ commit }, params) {
+      try {
+        // Construct query string from params
+        const queryString = Object.keys(params)
+          .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+          .join('&');
+  
+        const response = await axios.get(`/api/questions/search?${queryString}`);
         commit('setQuestions', response.data); // Assuming you have a Vuex store
+        // return (len(response.data));
+        
       } catch (error) {
         // Handle request failure
         commit('setQuestions', []);
       }
     },
-    // 获取题目列表
-    async fetchQuestions({ commit }) {
+    // // 获取题目列表
+    // async fetchQuestions({ commit }, pageNum) {
+    //   try {
+    //     var response;
+    //     if (pageNum!==undefined){
+    //       response = await axios.get('/api/questions/?pageNum='+ pageNum);
+    //     }else {
+    //       response = await axios.get('/api/questions');
+    //     }
+        
+    //     commit('setQuestions', response.data);
+    //   } catch (error) {
+    //     // 请求失败时，设置空数据
+    //     commit('setQuestions', []);
+    //   }
+    // },
+    async fetchQuestionsPages({ commit }) {
       try {
-        const response = await axios.get('/api/questions');
-        commit('setQuestions', response.data);
+        const response = await axios.get('/api/questions/pageNum');
+        const totalPages = parseInt(response.data, 10); // 将 response.data 转换为整数
+        console.log('Fetched questions pages:', totalPages); // 日志记录转换后的整数值
+        console.log(response.data);
+        commit('setQuestionsPages', response.data);
+        console.log('pages:', this.state.questionsPages)
+      } catch (error) {
+        console.error('Failed to fetch questions pages:', error); // Add log
+        commit('setQuestionsPages', 1);
+      }
+    },
+    
+    async fetchPapersPages({commit}){
+      try {
+        const response = await axios.get('/api/papers/pageNum');
+        commit('setPapersPages', response.data);
       } catch (error) {
         // 请求失败时，设置空数据
-        commit('setQuestions', []);
+        commit('setPapersPages', 1);
       }
     },
     async addPaper({ commit }, paper) {

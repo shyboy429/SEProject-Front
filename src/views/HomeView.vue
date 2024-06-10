@@ -12,6 +12,7 @@ import SideBar from '../components/SideBar.vue';
 import InputQuestion from '../components/InputQuestion.vue';
 import SearchQuestion from '../components/SearchQuestion.vue';
 import PaperManagement from '../components/PaperManagement.vue';
+import Shouye from '../components/Shouye.vue';
 
 export default {
   name: 'Home',
@@ -19,7 +20,8 @@ export default {
     SideBar,
     InputQuestion,
     SearchQuestion,
-    PaperManagement
+    PaperManagement,
+    Shouye
   },
   data() {
     return {
@@ -32,8 +34,10 @@ export default {
         this.currentContent = 'InputQuestion';
       } else if (contentType === 'search') {
         this.currentContent = 'SearchQuestion';
-      } else if (contentType = 'paper'){
-        this.currentContent = 'PaperManagement'
+      } else if (contentType === 'paper'){
+        this.currentContent = 'PaperManagement';
+      } else if (contentType === 'shouye'){
+        this.currentContent = 'Shouye'
       }
     },
   },

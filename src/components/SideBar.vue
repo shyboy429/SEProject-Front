@@ -3,7 +3,7 @@
     <div class="logo">后台管理系统</div>
     <nav>
       <ul>
-        <li><router-link to="/home">首页</router-link></li>
+        <li><router-link to="/home" @click="showContent('shouye')">首页</router-link></li>
         <li>
           <div @click="toggleQuestionMenu" class="menu-item">题库管理</div>
           <ul v-if="showQuestionMenu" class="sub-menu">

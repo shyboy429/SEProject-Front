@@ -36,12 +36,12 @@
       </el-table-column>
     </el-table>
 
-    <div class="questions-list">
+    <!-- <div class="questions-list">
       <div class="pagination">
         <button @click="prevPage" :disabled="currentPage === 1" style="padding: 5px 10px;">上一页</button>
         <button @click="nextPage" :disabled="currentPage === totalPages" style="padding: 5px 10px;">下一页</button>
       </div>
-    </div>
+    </div> -->
 
 
     <el-dialog v-model="dialogTableVisible" title="编辑试卷" width="950">
@@ -97,7 +97,15 @@
       <!-- </div> -->
     </el-dialog>
 
-
+    <div class="pagination">
+        <el-pagination
+      :page-size="10"
+      :pager-count="11"
+      layout="prev, pager, next"
+      :total="totalPages"
+      @current-change="handlePageChange"
+    />
+    </div>
   </div>
 </template>
 <script>
@@ -152,7 +160,12 @@ export default {
     };
   },
   computed: {
-      ...mapState(['papers', 'paper', 'paperQuestions', 'user']),
+      ...mapState(['papers', 'paper', 'paperQuestions', 'user', 'papersPages']),
+      totalPages() {
+      return this.papersPages ;
+      console.log("this", this.questionsPages);
+      return 1000;
+    },
     tableData() {
       return this.papers.map(paper => ({
         title: paper.title,
@@ -187,7 +200,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['fetchPapers', 'addPaper', 'addQuestionToPaper', 'removeFromPaper', 'fetchPaperQuestion', 'updatePaperQuestions', 'deletePaper']),
+    ...mapActions(['fetchPapers', 'addPaper', 'addQuestionToPaper', 'removeFromPaper', 'fetchPaperQuestion', 'updatePaperQuestions', 'deletePaper', 'fetchPapersPages']),
 
 
     automaticPaper() {
@@ -225,13 +238,13 @@ export default {
         createTime: '',
         updateTime: ''
       };
-      await this.fetchPapers();
+      await this.fetchPapers(this.currentPage);
       if (result.success=='success'){
           this.success('创建成功');
       } else {
         this.error('创建失败');
       }
-      
+      this.fetchPapersPages();
     },
     composePaper(index, row) {
       const questionId = row.id; // 获取 question id
@@ -276,9 +289,10 @@ export default {
       this.fetchPaperQuestion(paperId);
       console.log('查看试卷:', paperId);
     },
-    handlePaperDelete(index, row){
+    async handlePaperDelete(index, row){
       const paperId = row.id; // 获取 question id
-      this.deletePaper(paperId);
+      await this.deletePaper(paperId);
+      
       // this.paper_id = row.id;
       ElMessage({
         message: '删除成功',
@@ -287,17 +301,20 @@ export default {
         duration: 3000,
         showClose: true
       });
+      await this.fetchPapersPages();
+      this.fetchPapers(this.currentPage);
     },
     analysis(index, row){
       this.queryPaper(index, row);
       this.initChart();
     },
-    handleDelete(row) {
+    async handleDelete(row) {
       console.log(this.paper_id)
       const paperID = this.paper_id
 
       console.log(row);
-      this.updatePaperQuestions({'paperid':paperID, 'questionid':row.id});
+      await this.updatePaperQuestions({'paperid':paperID, 'questionid':row.id});
+      this.fetchPapers(this.currentPage);
       ElMessage({
         message: '移出成功',
         type: 'success',
@@ -482,11 +499,16 @@ export default {
       this.chart2.resize();
     });
       });
-    }
-  
+    },
+  handlePageChange(page) {
+      console.log('Page changed to:', page); // 日志记录当前页码
+      this.currentPage = page;
+      this.fetchPapers(page); // 触发 Vuex action 以获取新页数据
+  },
   },
   mounted() {
-    this.fetchPapers();
+    this.fetchPapers(this.currentPage);
+    this.fetchPapersPages();
   }
 };
 </script>
