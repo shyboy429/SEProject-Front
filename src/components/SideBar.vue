@@ -12,10 +12,10 @@
           </ul>
         </li>
         <li>角色管理</li>
-        <li>菜单管理</li>
+        <!-- <li>菜单管理</li>
         <li>文件管理</li>
         <li>课程管理</li>
-        <li>题目管理</li>
+        <li>题目管理</li> -->
         <li>考试管理</li>
         <li @click="showContent('paper')">试卷管理</li>
       </ul>

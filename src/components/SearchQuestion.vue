@@ -62,8 +62,8 @@
     <el-table-column label="操作" width="220" header-align="center">
       <template #default="scope">
         <div style="display: flex; justify-content: space-between;">
-          <el-button size="small" type="primary" @click="composePaper(scope.$index, scope.row)">组卷</el-button>
-          <el-button size="small" type="success" plain @click="dialogTableVisible = true; handleEdit(scope.$index, scope.row)">编辑</el-button>
+          <el-button size="small" type="primary" :disabled="(user.role !== 'ADMIN')" @click="composePaper(scope.$index, scope.row)">组卷</el-button>
+          <el-button size="small" type="success" :disabled="(user.username !== scope.row.createdBy) && (user.role !== 'ADMIN')" plain @click="dialogTableVisible = true; handleEdit(scope.$index, scope.row)">编辑</el-button>
           <el-button size="small" type="danger" :disabled="(user.username !== scope.row.createdBy) && (user.role !== 'ADMIN')" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
         </div>
       </template>

@@ -5,13 +5,13 @@
         <label>试卷管理</label>
       </div>
       <div class="form-group">
-        <el-button @click="automaticPaper" style="width: 80px; margin-left: 800px;">自动组卷</el-button>
+        <el-button :disabled="(user.role !== 'ADMIN')" @click="automaticPaper" style="width: 80px; margin-left: 800px;">自动组卷</el-button>
       </div>
       <div class="form-group">
-        <el-button type="success" plain @click="dialogTable2Visible = true; querySelected()" style="width: 80px;">已选试题</el-button>
+        <el-button type="success" :disabled="(user.role !== 'ADMIN')" plain @click="dialogTable2Visible = true; querySelected()" style="width: 80px;">已选试题</el-button>
       </div>
       <div class="form-group">
-        <el-button type="primary" @click="dialogFormVisible = true" style="width: 80px;">创建试卷</el-button>
+        <el-button type="primary" :disabled="(user.role !== 'ADMIN')" @click="dialogFormVisible = true" style="width: 80px;">创建试卷</el-button>
       </div>
     </div>
 
@@ -52,7 +52,7 @@
         <el-table-column prop="difficulty" label="难度" width="120"></el-table-column>
         <el-table-column label="操作" width="120" header-align="center">
         <template #default="{ row }">
-          <el-button type="primary" link @click="handleDelete(row)" style="text-align: left;padding-left: 0px;">移出试卷</el-button>
+          <el-button type="primary" :disabled="(user.role !== 'ADMIN')" link @click="handleDelete(row)" style="text-align: left;padding-left: 0px;">移出试卷</el-button>
         </template>
       </el-table-column>
       </el-table>
