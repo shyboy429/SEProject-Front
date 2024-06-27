@@ -1,109 +1,112 @@
 <template>
-  <div id="myChart" style="width: 600px; height: 400px;"></div>
+  <div class="flex flex-col h-screen bg-zinc-100">
+    <Header />
+    <div class="flex flex-1 overflow-hidden" style="margin-top: 72px;">
+      <Sidebar />
+      <div class="flex-1 p-6 overflow-auto">
+        <!-- <div class="flex justify-between items-center mb-6">
+          <div class="flex space-x-2">
+            <button class="button teal">全部</button>
+            <button class="button zinc">未开始</button>
+            <button class="button teal">进行中</button>
+            <button class="button pink">已完成</button>
+            <button class="button teal">创建考试</button>
+          </div>
+        </div> -->
+        <!-- <ExamList /> -->
+      </div>
+      <!-- <ExamList /> -->
+    </div>
+    <div class="flex flex-1 overflow-hidden" style="margin-top: -40px; margin-left: 300px;">
+        <ExamList /> 
+    </div>
+  </div>
 </template>
 
 <script>
+import Header from './Header.vue';
+import Sidebar from './StudentSideBar.vue';
+import ExamList from './ExamList.vue';
+import { mapActions, mapState } from 'vuex';
+import { ElMessage } from 'element-plus';
 import * as echarts from 'echarts';
+import { ref } from 'vue';
 
 export default {
-  name: 'PieChart',
-  data() {
-    return {
-      chart: null,
-      paperData: [
-        { id: 1, type: '选择题' },
-        { id: 2, type: '填空题' },
-        { id: 3, type: '选择题' },
-        { id: 4, type: '问答题' },
-        { id: 5, type: '选择题' },
-        { id: 6, type: '填空题' },
-        // 更多数据
-      ],
-    };
-  },
-  mounted() {
-    this.initChart();
+  components: {
+    Header,
+    Sidebar,
+    ExamList
   },
   methods: {
-    initChart() {
-      this.chart = echarts.init(document.getElementById('myChart'));
+    ...mapActions(['fetchExams', 'addPaper', 'addQuestionToPaper', 'removeFromPaper', 'fetchPaperQuestion', 'updatePaperQuestions', 'deletePaper', 'fetchExamsPages']),
 
-      // 计算每种类型的数量
-      const typeCounts = this.paperData.reduce((acc, item) => {
-        acc[item.type] = (acc[item.type] || 0) + 1;
-        return acc;
-      }, {});
 
-      // 将计算结果转换为 ECharts 数据格式
-      const data = Object.keys(typeCounts).map(type => {
-        return { value: typeCounts[type], name: type };
-      });
-
-      const option = {
-        title: {
-          text: '题目类型占比图:',
-          left: 'left'
-        },
-        tooltip: {
-          trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)'
-        },
-        legend: {
-          type: 'scroll',
-          orient: 'vertical',
-          right: 0,
-          top: 'center',
-          icon: 'circle',
-          selectedMode: 'multiple',
-          formatter: (name) => {
-            let total = data.reduce((sum, item) => sum + item.value, 0);
-            let item = data.find(item => item.name === name);
-            let p = (item.value / total * 100).toFixed(2);
-            return `${name}  |  ${p}%`;
-          }
-        },
-        series: [
-          {
-            name: '题目类型占比',
-            type: 'pie',
-            radius: '60%',
-            center: ['25%', '55%'],
-            selectedMode: 'single',
-            data: data,
-            label: {
-              show: true,
-              formatter: '{b}: {c} ({d}%)'
-            },
-            itemStyle: {
-              emphasis: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            }
-          }
-        ]
-      };
-
-      this.chart.setOption(option);
-
-      window.addEventListener('resize', () => {
-        this.chart.resize();
-      });
-    }
-  },
-  beforeDestroy() {
-    if (this.chart) {
-      window.removeEventListener('resize', this.chart.resize);
-      this.chart.dispose();
-    }
   }
-};
+}
 </script>
 
 <style scoped>
-#myChart {
-  width: 100%;
-  height: 100%;
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.h-screen {
+  height: 100vh;
+}
+.bg-zinc-100 {
+  background-color: #f3f4f6;
+}
+.dark\:bg-zinc-900 {
+  background-color: #18181b;
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+.overflow-auto {
+  overflow: auto;
+}
+.p-6 {
+  padding: 1.5rem;
+}
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+.space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
+}
+.button {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-radius: 0.375rem;
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 200ms;
+}
+.teal {
+  background-color: #14b8a6;
+  color: #fff;
+}
+.teal:hover {
+  background-color: #0d9488;
+}
+.zinc {
+  background-color: #d4d4d8;
+  color: #18181b;
+}
+.zinc:hover {
+  background-color: #e4e4e7;
+}
+.pink {
+  background-color: #ec4899;
+  color: #fff;
+}
+.pink:hover {
+  background-color: #db2777;
 }
 </style>

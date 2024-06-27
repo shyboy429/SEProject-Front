@@ -541,4 +541,51 @@ export default {
   /* 增加按钮间距 */
   margin-left: 12px;
 }
+form {
+  background: white;
+  padding: 2rem;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form div {
+  margin-bottom: 1rem;
+}
+
+/* button {
+  width: 100%;
+  padding: 0.5rem;
+  background: #1890ff;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #40a9ff;
+} */
+
+.alert {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pagination {
+  position: absolute;
+  bottom: 40px; /* 距离底部的距离 */
+  left: 58%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  display: flex;
+    justify-content: center;
+  align-items: center;
+  /* justify-content: space-between; */
+  width: 200px; /* 指定pagination的宽度 */
+}
 </style>

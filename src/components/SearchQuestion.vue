@@ -416,7 +416,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .search-question {
   flex: 1;
   background-color: #fff;
@@ -568,4 +568,40 @@ textarea#question, textarea#answer, textarea#analysis {
   word-break: break-all; /* 强制换行 */
 }
 
+form {
+  background: white;
+  padding: 2rem;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form div {
+  margin-bottom: 1rem;
+}
+
+/* button {
+  width: 100%;
+  padding: 0.5rem;
+  background: #1890ff;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #40a9ff;
+} */
+
+.alert {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 </style>

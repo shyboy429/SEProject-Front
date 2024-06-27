@@ -10,18 +10,30 @@ const store = createStore({
   state: {
     questions: [], // 存储题目列表
     paperQuestions: [],
+    examQuestions: [],
+    examAnswers: {},
     paper: [],
     papers: [],
+    examInfo: null,
     exams: [], // 存储考试列表
     question:[],
     questionsPages:1,
     papersPages:1,
+    examsPages:1,
+    totalCount2:0,
     user: null, // 存储当前登录用户
   },
   mutations: {
+    setExamAnswer(state, { questionId, answer }) {
+      state.examAnswers[questionId] = answer;
+    },
+
     // 设置题目列表
     setPapers(state, papers) {
       state.papers = papers;
+    },
+    setExams(state, exams) {
+      state.exams = exams;
     },
     addPaper(state, paper) {
       state.papers.push(paper);
@@ -45,6 +57,12 @@ const store = createStore({
     setPaperQuestions(state, questions){
       state.paperQuestions = questions;
     },
+    setExamQuestions(state, questions){
+      state.examQuestions = questions;
+    },
+    setExamInfo(state, row){
+      state.examInfo = row;
+    },
     // 设置题目列表
       setQuestion(state, question) {
           state.question = [];
@@ -59,9 +77,9 @@ const store = createStore({
       state.questions.push(question);
     },
     // 设置考试列表
-    setExams(state, exams) {
-      state.exams = exams;
-    },
+    // setExams(state, exams) {
+    //   state.exams = exams;
+    // },
     // 添加新考试
     addExam(state, exam) {
       state.exams.push(exam);
@@ -76,6 +94,9 @@ const store = createStore({
     setPapersPages(state, pagenum){
       state.papersPages = pagenum;
     },
+    setExamsPages(state, pagenum){
+      state.examsPages = pagenum;
+    },
     add(){
 
     }
@@ -83,6 +104,34 @@ const store = createStore({
   actions: {
     removeFromPaper({ commit }, id) {
       commit('removeQuestionFromPaper', id);
+    },
+    async submitExamAnswer({commit}, answer){
+      try {
+        // console.log(id);
+        // console.log('update');
+        let postData = [];
+        console.log("info:",this.state.examInfo)
+        // 遍历 answer 对象，构建每个题目的数据格式
+        Object.keys(answer).forEach(questionId => {
+          let data = {
+            id: "",  // 通常是提交后服务器返回的答案记录的唯一标识符
+            studentName: this.state.user.username,  // 学生姓名，这里可以根据实际情况传入
+            examId: this.state.examInfo.examId,  // 考试的唯一标识符
+            questionId: questionId,  // 题目的唯一标识符，对应数据库中的Id
+            studentAnswer: answer[questionId],  // 学生的答案，根据传入的 answer 对象取值
+            grade: "0"  // 初始分数为0，如果需要评分功能可以后续修改
+          };
+          postData.push(data);
+        });
+        console.log(postData);
+        const response = await axios.post('/api/answer-record/submit-answer', postData);
+        // const response2 = await axios.get('/api/papers');
+        // commit('setPapers', response2.data);
+        // commit('add');
+      } catch (error) {
+        // 请求失败时，直接添加传入的数据到题目列表
+        // commit('add');
+      }
     },
     async deletePaper({commit}, PaperID){
       try {
@@ -146,6 +195,24 @@ const store = createStore({
       }
     },
 
+    async fetchExamQuestion({ commit}, id){
+      try {
+        console.log("id:",id);
+        const response = await axios.get('/api/papers/admin/'+id[0]);
+        // var d2 = {};
+        // d2['id'] = response.data['questionId'];
+        // d2['type'] = response.data['questionType'];
+        // d2['description'] = response.data['specificContent'];
+        commit('setExamQuestions', response.data);
+        console.log("rrrrrrrrrrrr:", id[1]);
+        commit('setExamInfo', id[1]);
+        console.log('examInfo:', this.state.examInfo);
+        this.state.totalCount2 = response.data.length;
+      } catch (error) {
+        // 请求失败时，设置空数据
+        commit('setExamQuestions', []);
+      }
+    },
     // 获取paper列表
     async fetchPapers({ commit }, pageNum) {
       try {
@@ -244,6 +311,26 @@ const store = createStore({
         commit('setPapersPages', 1);
       }
     },
+    
+    async fetchExamPages({commit},kind){
+      try {
+        var response;
+        if (kind==='all'){
+          response = await axios.get('/api/exams/page-num');
+        }else if(kind==='unstart'){
+          response = await axios.get('/api/exams/not-started/page-num');
+        }else if(kind==='pro'){
+          response = await axios.get('/api/exams/in-progress/page-num');
+        }else if(kind==='end'){
+          response = await axios.get('/api/exams/finished/page-num');
+        }
+        
+        commit('setExamsPages', response.data);
+      } catch (error) {
+        // 请求失败时，设置空数据
+        commit('setExamsPages', 1);
+      }
+    },
     async addPaper({ commit }, paper) {
       try {
         const response = await axios.post('/api/papers', paper);
@@ -266,23 +353,123 @@ const store = createStore({
       }
     },
     // 获取考试列表
-    async fetchExams({ commit }) {
+    // async fetchExams({ commit }) {
+    //   try {
+    //     const response = await axios.get('/api/exams');
+    //     commit('setExams', response.data);
+    //   } catch (error) {
+    //     // 请求失败时，设置空数据
+    //     commit('setExams', []);
+    //   }
+    // },
+    // async fetchExams({ commit }, pageNum) {
+    //   try {
+    //     var response;
+    //     if (pageNum!==undefined){
+    //       response = await axios.get('/api/exams?pageNum='+ pageNum);
+    //     }else {
+    //       response = await axios.get('/api/exams');
+    //     }
+    //     commit('setExams', response.data);
+    //   } catch (error) {
+    //     // 请求失败时，设置空数据
+    //     commit('setExams', []);
+    //   }
+    // },
+
+    async fetchExams({ commit }, dict) {
       try {
-        const response = await axios.get('/api/exams');
+        console.log('dd', dict)
+
+        var pageNum = dict.pageNum;
+        var kind = dict.kind;
+        var response;
+        if(kind==="all"){
+          if (pageNum!==undefined){
+            response = await axios.get('/api/exams/student-name?pageNum='+ pageNum);
+          }else {
+            response = await axios.get('/api/exams');
+          }
+        }else if(kind==='pro'){
+          if (pageNum!==undefined){
+            response = await axios.get('/api/exams/student-name/in-progress?pageNum='+ pageNum);
+          }else {
+            response = await axios.get('/api/exams/student-name/in-progress');
+          }
+        }else if(kind==='unstart'){
+          if (pageNum!==undefined){
+            response = await axios.get('/api/exams/student-name/not-started?pageNum='+ pageNum);
+          }else {
+            response = await axios.get('/api/exams/student-name/not-started');
+          }
+        }else if(kind==='end'){
+          if (pageNum!==undefined){
+            response = await axios.get('/api/exams/student-name/finished?pageNum='+ pageNum);
+          }else {
+            response = await axios.get('/api/exams/student-name/finished');
+          }
+        }
+
         commit('setExams', response.data);
       } catch (error) {
         // 请求失败时，设置空数据
         commit('setExams', []);
       }
     },
+
+    async fetchStudentExams({ commit }, dict) {
+      try {
+        console.log('ddd', dict)
+
+        var pageNum = dict.pageNum;
+        var kind = dict.kind;
+        var response;
+        console.log('dddd', kind)
+        if(kind==="all"){
+          if (pageNum!==undefined){
+            console.log('ddddd', kind)
+            response = await axios.get('/api/exams/student-name?pageNum='+ pageNum +'&&studentName='+ this.state.user.username);
+            console.log('ddddd', kind)
+          }else {
+            response = await axios.get('/api/exams'+'?studentName='+ this.state.user.username);
+          }
+        }else if(kind==='pro'){
+          if (pageNum!==undefined){
+            response = await axios.get('/api/exams/student-name/in-progress?pageNum='+ pageNum+'&&studentName='+ this.state.user.username);
+          }else {
+            response = await axios.get('/api/exams/student-name/in-progress'+'?studentName='+ this.state.user.username);
+          }
+        }else if(kind==='unstart'){
+          if (pageNum!==undefined){
+            response = await axios.get('/api/exams/student-name/not-started?pageNum='+ pageNum+'&&studentName='+ this.state.user.username);
+          }else {
+            response = await axios.get('/api/exams/student-name/not-started'+'?studentName='+ this.state.user.username);
+          }
+        }else if(kind==='end'){
+          if (pageNum!==undefined){
+            response = await axios.get('/api/exams/student-name/finished?pageNum='+ pageNum+'&&studentName='+ this.state.user.username);
+          }else {
+            response = await axios.get('/api/exams/student-name/finished'+'?studentName='+ this.state.user.username);
+          }
+        }
+
+        commit('setExams', response.data);
+      } catch (error) {
+        // 请求失败时，设置空数据
+        commit('setExams', []);
+      }
+    },
+
     // 创建新考试
     async createExam({ commit }, exam) {
       try {
         const response = await axios.post('/api/exams', exam);
-        commit('addExam', response.data);
+        // commit('addExam', response.data);
+        return {success:"success"};
       } catch (error) {
         // 请求失败时，直接添加传入的数据到考试列表
-        commit('addExam', exam);
+        // commit('addExam', exam);
+        return {success:"error"};
       }
     },
     // 提交考试
@@ -298,10 +485,21 @@ const store = createStore({
       try {
         const response = await axios.post('/api/users/login', credentials);
         commit('setUser', response.data);
-        return { success: true };
+        return { success: true, role: response.data.role};
       } catch (error) {
         return { success: false, message: error.response ? error.response.data.message : '网络错误' };
       }
+    }
+  },
+  getters: {
+    getExamQuestions(state) {
+      return state.examQuestions;
+    },
+    getExamAnswer: (state) => (questionId) => {
+      return state.examAnswers[questionId];
+    },
+    getAnsweredCount(state) {
+      return Object.keys(state.examAnswers).length;
     }
   }
 });

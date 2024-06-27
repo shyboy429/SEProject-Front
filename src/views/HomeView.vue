@@ -1,10 +1,11 @@
 <template>
-  <div class="home">
-    <SideBar @show-content="showContent" />
-    <main class="main-content">
-      <component :is="currentContent" />
-    </main>
-  </div>
+    <!-- <HeaderNav /> -->
+    <div class="home">
+      <SideBar @show-content="showContent" />
+      <main class="main-content">
+        <component :is="currentContent" />
+      </main>
+    </div>
 </template>
 
 <script>
@@ -13,15 +14,20 @@ import InputQuestion from '../components/InputQuestion.vue';
 import SearchQuestion from '../components/SearchQuestion.vue';
 import PaperManagement from '../components/PaperManagement.vue';
 import Shouye from '../components/Shouye.vue';
+import ExamManagement from '../components/ExamManagement.vue'
+import HeaderNav from '../components/HeaderNav.vue';
 
 export default {
   name: 'Home',
+  // const headerVisible = ref(true),
   components: {
     SideBar,
     InputQuestion,
     SearchQuestion,
     PaperManagement,
-    Shouye
+    Shouye,
+    ExamManagement,
+    HeaderNav
   },
   data() {
     return {
@@ -37,14 +43,16 @@ export default {
       } else if (contentType === 'paper'){
         this.currentContent = 'PaperManagement';
       } else if (contentType === 'shouye'){
-        this.currentContent = 'Shouye'
+        this.currentContent = 'Shouye';
+      } else if (contentType === 'exam'){
+        this.currentContent = 'ExamManagement';
       }
     },
   },
 };
 </script>
 
-<style>
+<style scoped>
 .home {
   display: flex;
   height: 100vh;
@@ -58,5 +66,41 @@ export default {
   overflow: auto;
   display: flex;
   /* background-color: #df1a1a; 设置灰色背景 */
+}
+form {
+  background: white;
+  padding: 2rem;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form div {
+  margin-bottom: 1rem;
+}
+
+button {
+  width: 100%;
+  padding: 0.5rem;
+  background: #1890ff;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #40a9ff;
+}
+
+.alert {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>
