@@ -1,4 +1,4 @@
-# demo_vue
+# SEProject-front
 
 ## Project setup
 ```
