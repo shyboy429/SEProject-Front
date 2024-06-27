@@ -27,16 +27,16 @@
       <!-- 索引 -->
       <el-table-column type="index" width="50"></el-table-column>
       <el-table-column prop="name" label="考试名称" width="200" header-align="left"></el-table-column>
-      <el-table-column prop="introduction" label="考试介绍" width="200" header-align="left"></el-table-column>
-      <el-table-column prop="startTime" label="开始时间" width="200" header-align="left"></el-table-column>
-      <el-table-column prop="endTime" label="结束时间" width="200" header-align="left"></el-table-column>
-      <el-table-column prop="durationime" label="限时" width="120"></el-table-column>
-      <el-table-column label="操作" width="220" header-align="center" :header-cell-style="{ paddingLeft: '0px' }">
+      <el-table-column prop="introduction" label="发布人" width="200" header-align="left"></el-table-column>
+      <el-table-column prop="startTime" label="开始时间" width="240" header-align="left"></el-table-column>
+      <el-table-column prop="endTime" label="结束时间" width="240" header-align="left"></el-table-column>
+      <el-table-column prop="durationTime" label="限时" width="120"></el-table-column>
+      <el-table-column label="操作" width="90" header-align="center" :header-cell-style="{ paddingLeft: '0px' }">
         <template #default="scope">
           <div style="display: flex; justify-content: space-between;">
-            <el-button size="small" type="primary"  @click="dialogTableVisible = true; queryPaper(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="small" type="danger" :disabled="(user.username !== scope.row.createdBy)&&(user.role!=='ADMIN')" @click="handlePaperDelete(scope.$index, scope.row)">删除</el-button>
-            <el-button size="small" type="info" @click="dialogChartVisible = true; analysis(scope.$index, scope.row); ">试卷分析</el-button>
+            <!-- <el-button size="small" type="primary"  @click="dialogTableVisible = true; queryPaper(scope.$index, scope.row)">编辑</el-button> -->
+            <el-button size="small" type="danger" :disabled="(user.username !== scope.row.createdBy)&&(user.role!=='ADMIN')" @click="handleExamDelete(scope.$index, scope.row)">删除</el-button>
+            <!-- <el-button size="small" type="info" @click="dialogChartVisible = true; analysis(scope.$index, scope.row); ">试卷分析</el-button> -->
           </div>
         </template>
       </el-table-column>
@@ -89,6 +89,7 @@
                 start-placeholder="Start date"
                 end-placeholder="End date"
                 format="YYYY-MM-DD HH:mm:ss"
+                value-format="YYYY-MM-DDTHH:mm:ss.000Z"
                 date-format="YYYY/MM/DD ddd"
                 time-format="A hh:mm:ss"
               />
@@ -96,9 +97,6 @@
         </el-form-item>
         <el-form-item label="考试名称" :label-width="formLabelWidth">
           <el-input v-model="form.name" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="考试介绍" :label-width="formLabelWidth">
-          <el-input v-model="form.introduction" autocomplete="off" />
         </el-form-item>
         <el-form-item label="试卷" :label-width="formLabelWidth">
           <el-input v-model="form.paperTitle" autocomplete="off" />
@@ -163,7 +161,7 @@ export default {
         { label: '全部', isActive: true, method: this.getAll}, // 默认第一个按钮为激活状态
         { label: '未开始', isActive: false, method: this.getUnstarted },
         { label: '进行中', isActive: false, method: this.getPro },
-        { label: '已完成', isActive: false, method: this.getEnded },
+        { label: '已结束', isActive: false, method: this.getEnded },
       ],
 
       dialogFormVisible: false,
@@ -220,10 +218,10 @@ export default {
     tableData() {
       return this.exams.map(exam => ({
         name: exam.name,
-        // introduction: exam.introduction,
+        introduction: exam.publisher,
         startTime: exam.startTime,
         endTime: exam.endTime,
-        durationTime: exam.durationTime,
+        durationTime: exam.durationTime+'分钟',
         paperID: exam.paperTitle,
       }));
       },
@@ -251,7 +249,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['fetchExams', 'addPaper', 'addQuestionToPaper', 'removeFromPaper', 'fetchPaperQuestion', 'updatePaperQuestions', 'deletePaper', 'fetchExamPages', 'createExam']),
+    ...mapActions(['fetchExams', 'addPaper', 'addQuestionToPaper', 'removeFromPaper', 'fetchPaperQuestion', 'updatePaperQuestions', 'deleteExam', 'fetchExamPages', 'createExam']),
 
     getAll(){
       console.log("getall");
@@ -383,21 +381,28 @@ export default {
       this.fetchPaperQuestion(paperId);
       console.log('查看试卷:', paperId);
     },
-    async handlePaperDelete(index, row){
+    async handleExamDelete(index, row){
       const paperId = row.id; // 获取 question id
-      await this.deletePaper(paperId);
+      const result = await this.deleteExam(paperId);
       
       // this.paper_id = row.id;
-      ElMessage({
-        message: '删除成功',
-        type: 'success',
-        customClass: 'custom-message-class',
-        duration: 3000,
-        showClose: true
-      });
-      await this.fetchPapersPages();
-      this.fetchPapers(this.currentPage);
+      // ElMessage({
+      //   message: '删除成功',
+      //   type: 'success',
+      //   customClass: 'custom-message-class',
+      //   duration: 3000,
+      //   showClose: true
+      // });
+      if (result.success=='success'){
+          this.success('创建成功');
+      } else {
+        this.error(result.message);
+      }
+      
+      await this.fetchExamPages(this.dict.kind);
+      this.fetchExams(this.dict);
     },
+
     analysis(index, row){
       this.queryPaper(index, row);
       this.initChart();

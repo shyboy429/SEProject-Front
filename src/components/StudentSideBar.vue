@@ -2,15 +2,12 @@
   <div class="sidebar" style="margin-top: 80px;">
     <div class="p-4">
       <img src="https://placehold.co/100x100" alt="Course Image" class="course-image mb-4">
-      <h2 class="course-title">Java高级基础</h2>
+      <h2 class="course-title">JAVA从入门到精通</h2>
     </div>
     <nav class="mt-6">
       <a href="#" class="nav-link">课堂</a>
       <a href="#" class="nav-link">作业</a>
       <a href="#" class="nav-link">考试</a>
-      <a href="#" class="nav-link">试卷</a>
-      <a href="#" class="nav-link">题库</a>
-      <a href="#" class="nav-link">班级</a>
     </nav>
   </div>
 </template>

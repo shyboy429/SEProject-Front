@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-zinc-100 dark:bg-zinc-900">
+  <div  v-if="user" class="min-h-screen flex flex-col bg-zinc-100 dark:bg-zinc-900">
     <header class="bg-zinc-800 text-white p-4 flex justify-between items-center custom-header">
       <h1 class="text-lg">考试</h1>
       <button @click="submit" class="bg-teal-500 text-white px-4 py-2 rounded">提交试卷</button>
@@ -23,7 +23,7 @@
         <div class="bg-zinc-100 dark:bg-zinc-700 p-4 rounded mb-4">
           <!-- <p class="text-center text-xl font-bold">{{ timeRemaining }}</p> -->
           <div v-if="showCountdown">
-  <el-countdown title="Start to grab" :value=this.value10 @finish="submit" />
+  <el-countdown title="剩余时间" :value=this.value10 @finish="submit" />
 </div>
 
           <p class="text-sm text-zinc-500">开始时间: {{ this.examInfo.startTime }}</p>
@@ -41,6 +41,7 @@
           </el-button>
         </div>
         <div class="mb-4">
+          <p class="text-lg2 text-gray-500">{{ questionTypeAndScore(currentQuestion.type) }}</p>
           <p class="text-lg">{{ cleanedDescription(currentQuestion.description) }}</p>
           <div v-if="currentQuestion.type === '选择题'" class="mt-4">
             <div v-for="(option, index) in extractedOptions(currentQuestion.description)" :key="index">
@@ -64,7 +65,7 @@
           </div>
           <div v-else-if="currentQuestion.type === '问答题'" class="mt-4">
             <label class="block mb-2">
-              <textarea class="w-full p-2 border border-zinc-300 rounded" rows="4" @input="updateAnswer(currentQuestion.id, $event.target.value)">{{ getExamAnswer(currentQuestion.id) }}</textarea>
+              <textarea class="w-full p-2 border border-zinc-300 rounded" style="width: 400px;" rows="4" @input="updateAnswer(currentQuestion.id, $event.target.value)">{{ getExamAnswer(currentQuestion.id) }}</textarea>
             </label>
           </div>
         </div>
@@ -74,11 +75,10 @@
         <div class="mb-4">
           <p class="text-center text-zinc-500">作答状态</p>
           <div class="flex justify-around mt-2">
-            <span class="bg-zinc-300 dark:bg-zinc-600 w-4 h-4 rounded-full inline-block"></span>
+            <span class="bg-zinc-300 dark:bg-zinc-600 w-4 h-4 rounded-full inline-block" style="margin-left:70px"></span>
             未作答
-            <span class="bg-orange-300 dark:bg-orange-600 w-4 h-4 rounded-full inline-block"></span>
-            未答完
-            <span class="bg-green-300 dark:bg-green-600 w-4 h-4 rounded-full inline-block"></span>
+
+            <span class="bg-green-300 dark:bg-green-600 w-4 h-4 rounded-full inline-block " style="margin-left:20px"></span>
             已作答
           </div>
         </div>
@@ -98,11 +98,12 @@
       </el-button>
     </div>
   </div>
+
   <div class="mb-4">
-    <p class="text-center text-zinc-500">填空题</p>
+    <p class="text-center text-zinc-500">判断题</p>
     <div class="grid grid-cols-5 gap-2">
             <el-button
-        v-for="index in fillInBlankIndexes"
+        v-for="index in trueFalseIndexes"
         :key="index"
         @click="goToQuestion(index)"
         :class="{
@@ -116,10 +117,10 @@
     </div>
   </div>
   <div class="mb-4">
-    <p class="text-center text-zinc-500">判断题</p>
+    <p class="text-center text-zinc-500">填空题</p>
     <div class="grid grid-cols-5 gap-2">
             <el-button
-        v-for="index in trueFalseIndexes"
+        v-for="index in fillInBlankIndexes"
         :key="index"
         @click="goToQuestion(index)"
         :class="{
@@ -297,11 +298,24 @@ export default {
       return this.getExamAnswer(questionId) === option;
     },
     cleanedDescription(description) {
-      const regex = /^选择题\d+、|填空题\d+、|判断题\d+、|问答题\d+、/;
-      return description;
+      const regex = /A\..*?\nB\..*?\nC\..*?\nD\..*/s;
+      return description.replace(regex, '');
+    },
+    questionTypeAndScore(type) {
+      var score;
+      if (type==='选择题'){
+        score = 3
+      }else if(type==='判断题'){
+        score = 3
+      }else if(type==='填空题'){
+        score = 5
+      }else if(type==='问答题'){
+        score = 10
+      }
+      return `${type}:${score}分`;
     },
     extractedOptions(description) {
-      const options = description.match(/A\..*?B\..*?C\..*?D\..*/);
+      const options = description.match(/A\..*?\nB\..*?\nC\..*?\nD\..*/s);
       if (options) {
         return options[0].split(/(?=[A-D]\.)/).map(opt => opt.trim());
       }
@@ -322,6 +336,16 @@ export default {
       
       this.value10 = Date.now() + 1000 * 60 * this.examInfo.durationTime;
       this.showCountdown = true;
+  },
+  created() {
+    console.log(this.user);
+    if (!this.user) {
+      this.alertMessage = '未登录';
+      ElMessage("未登录")
+      setTimeout(() => {
+        this.$router.push('/');
+      }, 2000); // 等待2秒后跳转
+    }
   }
 };
 </script>
@@ -369,7 +393,12 @@ export default {
 .text-lg {
   font-size: 1.125rem;
 }
-
+.text-lg2 {
+  font-size: 0.925rem;
+}
+.text-gray-500 {
+  color: #737373;
+}
 .bg-teal-500 {
   background-color: #38b2ac;
 }

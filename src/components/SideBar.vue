@@ -11,19 +11,21 @@
             <li @click="showContent('search')">查询题目</li>
           </ul>
         </li>
-        <li>角色管理</li>
+        
         <!-- <li>菜单管理</li>
         <li>文件管理</li>
         <li>课程管理</li>
         <li>题目管理</li> -->
         <li @click="showContent('exam')">考试管理</li>
         <li @click="showContent('paper')">试卷管理</li>
+        <li @click="exit()" >退出</li>
       </ul>
     </nav>
   </aside>
 </template>
 
 <script>
+import { ElMessage } from 'element-plus';
 export default {
   name: 'SideBar',
   data() {
@@ -38,6 +40,16 @@ export default {
     showContent(contentType) {
       this.$emit('show-content', contentType);
     },
+    tip(ms){
+      ElMessage({
+        message: ms,
+        duration: 3000,
+        showClose: true
+      });
+    },
+    exit(){
+      this.$router.push('/');
+    }
   },
 };
 </script>

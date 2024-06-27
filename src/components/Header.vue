@@ -9,88 +9,35 @@
                 </router-link>
                 <!-- 导航区 -->
                 <ul class="header-nav">
-                    <li>
-                        <router-link to="/home">
-                            首页
-                        </router-link>
-                    </li>
-                    <li>
-                        <router-link to="/home/course/student">
-                            课程中心
-                        </router-link>
-                    </li>
-                    <li>
-                        <router-link to="/home">
-                            题库查询
-                        </router-link>
-                    </li>
+                   
                 </ul>
             </div>
             <!-- 信息区 -->
             <ul class="header-info">
-                <li class="header-search">
-                    <!-- <a-input-search :style="{width:'320px'}" placeholder="搜索一下吧~~~" search-button /> -->
-                </li>
-                <li>
-                    <a-tooltip
-                    :content="
-                        theme === 'light'
-                        ? '点击切换为暗黑模式'
-                        :'点击切换为亮色模式'
-                    "
-                    >
-                    <a-button
-                        class="nav-btn"
-                        type="outline"
-                        :shape="'circle'"
-                        @click="handleToggleTheme"
-                    >
-                        <template #icon>
-                        <icon-moon-fill v-if="theme === 'dark'" />
-                        <icon-sun-fill v-else />
-                        </template>
-                    </a-button>
-                    </a-tooltip>
-                </li>
-                <li>
-                    <a-tooltip
-                    :content="
-                        isFullscreen
-                        ? '点击退出全屏模式'
-                            :'点击切换全屏模式'
-                        "
-                        >
-                        <a-button
-                            class="nav-btn"
-                            type="outline"
-                            :shape="'circle'"
-                            @click="toggleFullScreen"
-                        >
-                            <template #icon>
-                            <icon-fullscreen-exit v-if="isFullscreen" />
-                            <icon-fullscreen v-else />
-                            </template>
-                        </a-button>
-                        </a-tooltip>
-                </li>
-                <li>
-                    <a-trigger>
-                        <a-button type="primary">{{userInfo?.schoolName??'学校认证'}}</a-button>
+
+             
+                    <a-trigger style="margin-right:50px">
+                        <a-button type="primary">{{'哈尔滨工业大学'}}</a-button>
                         <template #content>
-                            <AuthCard style="margin-top:20px" :userAuthInfo="userInfo"/>
+                            <AuthCard style="margin-top:20px" :usrenerAuthInfo="userInfo"/>
                         </template>
                     </a-trigger>
-                </li>
+                
 
-                <li>
+             
                     <a-dropdown trigger="hover">
-                        <div class="user-info">
+                        <!-- <div class="user-info">
                             <AAvatar class="avatar" :image-url="userInfo?.picture">
                                 
                             </AAvatar>
                             <p class="user-name">{{userInfo?.nickname??"未登录"}}</p>
                             
-                        </div>
+                        </div> -->
+                      
+                            <router-link to="/">
+                                退出
+                            </router-link>
+                       
                         <template #content>
                             <a-doption>
                             <a-space @click="$router.push({ name: 'SettingIndex' })">
@@ -110,7 +57,7 @@
                             </a-doption>
                         </template>
                         </a-dropdown>
-                </li>
+               
             </ul>
         </div>
     </div>

@@ -1,6 +1,6 @@
 <template>
     <!-- <HeaderNav /> -->
-    <div class="home">
+    <div v-if="user && user.role !== 'STUDENT'" class="home">
       <SideBar @show-content="showContent" />
       <main class="main-content">
         <component :is="currentContent" />
@@ -16,6 +16,8 @@ import PaperManagement from '../components/PaperManagement.vue';
 import Shouye from '../components/Shouye.vue';
 import ExamManagement from '../components/ExamManagement.vue'
 import HeaderNav from '../components/HeaderNav.vue';
+import { mapState, mapMutations, mapGetters, mapActions } from 'vuex';
+import { ElMessage } from 'element-plus';
 
 export default {
   name: 'Home',
@@ -32,7 +34,12 @@ export default {
   data() {
     return {
       currentContent: null,
+      alertMessage: '',
     };
+  },
+  computed: {
+    ...mapState(['examQuestions', 'examAnswers', 'examInfo', 'user', 'totalCount2']),
+
   },
   methods: {
     showContent(contentType) {
@@ -49,6 +56,16 @@ export default {
       }
     },
   },
+  created() {
+  if (!this.user||this.user.role==="STUDENT") {
+    this.alertMessage = '未登录';
+    ElMessage("未登录")
+    setTimeout(() => {
+      this.$router.push('/');
+    }, 2000); // 等待2秒后跳转
+  }
+},
+
 };
 </script>
 

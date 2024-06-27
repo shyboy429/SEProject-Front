@@ -142,6 +142,9 @@ form div, .input-text, .input-password {
   ring: 2px solid #3b82f6;
 }
 
+button {
+  border: none;
+}
 .password-input {
   position: relative;
 }

@@ -198,7 +198,7 @@ const store = createStore({
     async fetchExamQuestion({ commit}, id){
       try {
         console.log("id:",id);
-        const response = await axios.get('/api/papers/admin/'+id[0]);
+        const response = await axios.get('/api/papers/exam-paper/'+id[0]);
         // var d2 = {};
         // d2['id'] = response.data['questionId'];
         // d2['type'] = response.data['questionType'];

@@ -31,7 +31,7 @@
             <el-checkbox v-model="myQuestions" sytle="width: 10px;" label="" value="Value1" border />
         </div>
         
-        <button @click="searchQuestions" class="form-group" style="padding: 20px 0px 20px 35px; font-size: 18px;">查询题目</button>
+        <button @click="searchQuestions" class="form-group button2" style="padding: 20px 0px 20px 35px; font-size: 18px;">查询题目</button>
 
       </div>
       
@@ -579,9 +579,9 @@ form div {
   margin-bottom: 1rem;
 }
 
-/* button {
+.button2 {
   width: 100%;
-  padding: 0.5rem;
+  /* padding: 0.5rem; */
   background: #1890ff;
   border: none;
   color: white;
@@ -589,9 +589,9 @@ form div {
   cursor: pointer;
 }
 
-button:hover {
+/* button:hover {
   background: #40a9ff;
-} */
+}  */
 
 .alert {
   margin-top: 1rem;

@@ -23,14 +23,27 @@
                 <!-- 索引 -->
                 <el-table-column type="index" width="50"></el-table-column>
                 <el-table-column prop="name" label="考试名称" width="200" header-align="left"></el-table-column>
-                <el-table-column prop="introduction" label="考试介绍" width="200" header-align="left"></el-table-column>
+                
                 <el-table-column prop="startTime" label="开始时间" width="200" header-align="left"></el-table-column>
-                <el-table-column prop="endTime" label="结束时间" width="270" header-align="left"></el-table-column>
-                <el-table-column prop="durationTime" label="限时" width="100"></el-table-column>
+                <el-table-column prop="endTime" label="结束时间" width="200" header-align="left"></el-table-column>
+                    <!-- 客观题分数 -->
+                <el-table-column label="客观题分数" width="120" header-align="center" align="center">
+                  <template #default="scope">
+                    <span v-if="scope.row.answerStatus === '已完成'">{{ scope.row.obj }}</span>
+                  </template>
+                </el-table-column>
+
+                <!-- 主观题分数 -->
+                <el-table-column label="主观题分数" width="120" header-align="center" align="center">
+                  <template #default="scope">
+                    <span v-if="scope.row.answerStatus === '已完成'">{{ scope.row.sub }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="durationTime" label="限时" width="120" header-align="center" align="center" ></el-table-column>
                 <el-table-column label="操作" width="90" header-align="center" :header-cell-style="{ paddingLeft: '0px' }">
                     <template #default="scope">
                     <div style="display: flex; justify-content: space-between;">
-                        <el-button size="small" type="primary" :disabled="user.role!=='STUDENT'" @click="enterExam(scope.$index, scope.row)">开始考试</el-button>
+                        <el-button size="small" type="primary" :disabled="user.role!=='STUDENT' || scope.row.status!=='进行中' || scope.row.status==='已结束' || scope.row.answerStatus==='已完成' " @click="enterExam(scope.$index, scope.row)">开始考试</el-button>
                         <!-- <el-button size="small" type="primary"  @click="dialogTableVisible = true; queryPaper(scope.$index, scope.row)">编辑</el-button>
                         <el-button size="small" type="danger" :disabled="(user.username !== scope.row.createdBy)&&(user.role!=='ADMIN')" @click="handlePaperDelete(scope.$index, scope.row)">删除</el-button>
                         <el-button size="small" type="info" @click="dialogChartVisible = true; analysis(scope.$index, scope.row); ">试卷分析</el-button> -->
@@ -68,7 +81,7 @@ export default {
         { label: '全部', isActive: true, method: this.getAll}, // 默认第一个按钮为激活状态
         { label: '未开始', isActive: false, method: this.getUnstarted },
         { label: '进行中', isActive: false, method: this.getPro },
-        { label: '已完成', isActive: false, method: this.getEnded },
+        { label: '已结束', isActive: false, method: this.getEnded },
       ],
       currentPage:1,
       dict: {'pageNum':1, 'kind':'all'},
@@ -89,6 +102,10 @@ export default {
         durationTime: exam.durationTime,
         paperId: exam.paperId,
         examId: exam.id,
+        answerStatus:exam.answerStatus,
+        status:exam.status,
+        obj:exam.objAndSubGrade[0],
+        sub:exam.objAndSubGrade[1]
       }));
     },
   },

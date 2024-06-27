@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen bg-zinc-100">
+  <div v-if="user" class="flex flex-col h-screen bg-zinc-100">
     <Header />
     <div class="flex flex-1 overflow-hidden" style="margin-top: 72px;">
       <Sidebar />
@@ -38,10 +38,23 @@ export default {
     Sidebar,
     ExamList
   },
+  computed:{
+    ...mapState(['user'])
+  },
   methods: {
     ...mapActions(['fetchExams', 'addPaper', 'addQuestionToPaper', 'removeFromPaper', 'fetchPaperQuestion', 'updatePaperQuestions', 'deletePaper', 'fetchExamsPages']),
 
 
+  },
+  created() {
+    console.log(this.user);
+    if (!this.user) {
+      this.alertMessage = '未登录';
+      ElMessage("未登录")
+      setTimeout(() => {
+        this.$router.push('/');
+      }, 2000); // 等待2秒后跳转
+    }
   }
 }
 </script>
