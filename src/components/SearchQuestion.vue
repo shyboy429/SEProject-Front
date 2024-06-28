@@ -419,7 +419,7 @@ export default {
       const result = await this.deleteQuestion(questionId);
       this.queryParams.pageNum = this.currentPage;
       await this.fetchQuestions(this.queryParams);
-      if (result.success=='success'){
+      if (result.success!=='error'){
           this.success('删除成功');
       } else {
         this.error(result.error);

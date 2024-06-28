@@ -7,7 +7,7 @@
     <div class="flex flex-1">
       <aside class="w-1 bg-white dark:bg-zinc-800 p-4">
         <div class="flex flex-col items-center mb-4">
-          <img :src="_user.avatar" alt="User" class="rounded-full mb-2" />
+          <img :src="require('../assets/img/4.jpg')" alt="Background Image" class="rounded-full mb-2 background-image">  
           <div class="text-center">
             <p class="text-lg font-bold">{{ this.user.username }}</p>
             <p class="text-sm text-zinc-500">{{ _user.university }}</p>
@@ -65,7 +65,7 @@
           </div>
           <div v-else-if="currentQuestion.type === '问答题'" class="mt-4">
             <label class="block mb-2">
-              <textarea class="w-full p-2 border border-zinc-300 rounded" style="width: 400px;" rows="4" @input="updateAnswer(currentQuestion.id, $event.target.value)">{{ getExamAnswer(currentQuestion.id) }}</textarea>
+              <textarea class="w-full p-2 border border-zinc-300 rounded" style="width: 400px;" rows="4" @input="updateAnswer(currentQuestion.id, $event.target.value) " :value="getExamAnswer(currentQuestion.id)"></textarea>
             </label>
           </div>
         </div>
@@ -85,7 +85,7 @@
   <div class="mb-4">
     <p class="text-center text-zinc-500">单选题</p>
     <div class="grid grid-cols-5 gap-2">
-            <el-button
+            <el-button style="width:50px"
         v-for="index in singleChoiceIndexes"
         :key="index"
         @click="goToQuestion(index)"
@@ -99,10 +99,10 @@
     </div>
   </div>
 
-  <div class="mb-4">
+  <div >
     <p class="text-center text-zinc-500">判断题</p>
     <div class="grid grid-cols-5 gap-2">
-            <el-button
+            <el-button style="width:50px"
         v-for="index in trueFalseIndexes"
         :key="index"
         @click="goToQuestion(index)"
@@ -116,10 +116,10 @@
       </el-button>
     </div>
   </div>
-  <div class="mb-4">
+  <div >
     <p class="text-center text-zinc-500">填空题</p>
-    <div class="grid grid-cols-5 gap-2">
-            <el-button
+    <div class="grid grid-cols-5 gap-2" >
+            <el-button style="width:50px"
         v-for="index in fillInBlankIndexes"
         :key="index"
         @click="goToQuestion(index)"
@@ -133,10 +133,10 @@
       </el-button>
     </div>
   </div>
-  <div>
+  <div class="mb-4">
     <p class="text-center text-zinc-500">问答题</p>
     <div class="grid grid-cols-5 gap-2">
-            <el-button
+            <el-button style="width:50px"
         v-for="index in essayIndexes"
         :key="index"
         @click="goToQuestion(index)"
@@ -483,6 +483,7 @@ export default {
 
 .grid {
   display: grid;
+  
 }
 
 .grid-cols-4 {
@@ -512,7 +513,11 @@ export default {
 .dark .bg-zinc-700 {
   background-color: #3d3d3d;
 }
-
+.background-image {
+  width: 100px; /* 图片的宽度 */
+  height: 100px; /* 图片的高度 */
+  object-fit: cover; /* 保持图片的长宽比，裁剪超出部分 */
+}
 .block {
   display: block;
 }
@@ -528,7 +533,9 @@ export default {
 .flex-1 {
   flex: 1;
 }
-
+button{
+  border: none;
+}
 .w-4 {
   width: 1rem;
 }
@@ -570,7 +577,8 @@ export default {
 }
 
 .grid-cols-5 {
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
+  /* grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); */
 }
 
 .border {

@@ -2,10 +2,10 @@
 
 import { createStore } from 'vuex';
 import axios from 'axios';
-import { message } from 'ant-design-vue';
 
 // 设置 Axios 基地址
-axios.defaults.baseURL = 'http://47.93.170.188:8800';
+// axios.defaults.baseURL = 'http://47.93.170.188:8800';
+axios.defaults.baseURL = 'http://localhost:8181';
 
 const store = createStore({
   state: {
@@ -244,8 +244,9 @@ const store = createStore({
         console.log(form.id);
         const response = await axios.post('/api/questions/'+form.id, form.question);
         
-        commit('add');
-        return response.data
+          commit('add');
+          return { success: "success" };
+        // return response.data
       } catch (error) {
         // 请求失败时，直接添加传入的数据到题目列表
         commit('add');

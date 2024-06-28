@@ -285,12 +285,12 @@ export default {
       }
     },
     
-    queryPaper(index, row) {
+    async queryPaper(index, row) {
       console.log('query');
       const paperId = row.id; // 获取 question id
       this.paper_id = row.id;
       console.log('query');
-      this.fetchPaperQuestion(paperId);
+      await this.fetchPaperQuestion(paperId);
       console.log('查看试卷:', paperId);
     },
     async handlePaperDelete(index, row){
@@ -304,8 +304,8 @@ export default {
       await this.fetchPapersPages();
       this.fetchPapers(this.currentPage);
     },
-    analysis(index, row){
-      this.queryPaper(index, row);
+    async analysis(index, row){
+      await this.queryPaper(index, row);
       this.initChart();
     },
     async handleDelete(row) {

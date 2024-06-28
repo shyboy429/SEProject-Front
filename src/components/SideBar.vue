@@ -29,14 +29,14 @@
         <span slot="title">角色管理</span>
       </el-menu-item>
 
-      <el-menu-item index="4" @click="showContent('exam')">
-        <el-icon><Management /></el-icon>
-        <span slot="title">考试管理</span>
-      </el-menu-item>
-
       <el-menu-item index="5" @click="showContent('paper')">
         <el-icon><List /></el-icon>
         <span slot="title">试卷管理</span>
+      </el-menu-item>
+
+      <el-menu-item index="4" @click="showContent('exam')">
+        <el-icon><Management /></el-icon>
+        <span slot="title">考试管理</span>
       </el-menu-item>
 
       <el-menu-item index="6" @click="exit()">

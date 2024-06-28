@@ -11,9 +11,9 @@
         <button class="option">找回密码</button>
       </div>
       <form @submit.prevent="handleLogin">
-        <input type="text" placeholder="username" v-model="username" class="input-text" required>
+        <input type="text" placeholder="用户名" v-model="username" class="input-text" required>
         <!-- <div class="password-input"> -->
-          <input type="password" placeholder="••••••••" v-model="password" class="input-password" required>
+          <input type="password" placeholder="密码" v-model="password" class="input-password" required>
           <!-- <button class="toggle-password">
             <img src="https://placehold.co/20x20" alt="Show/Hide Password">
           </button> -->
