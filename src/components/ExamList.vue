@@ -162,7 +162,7 @@ export default {
       const paperId = row.paperId; // 获取 question id
       console.log("row:",row);
       await this.fetchExamQuestion([paperId, row]);
-      this.$router.push('/test2');
+      this.$router.push('/onlinetest');
     },
   },
   mounted() {

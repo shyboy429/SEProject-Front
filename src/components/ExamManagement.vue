@@ -81,7 +81,10 @@
     <!-- 创建试卷的对话框 -->
     <el-dialog v-model="dialogFormVisible" title="创建考试">
       <el-form :model="form"  >
-        <el-form-item label="考试时间" :label-width="formLabelWidth">
+        <el-form-item  :label-width="formLabelWidth">
+          <template #label>
+        <span style="color: red; margin-right:2px">* </span> 考试时间
+      </template>
             <div class="demo-range">
               <el-date-picker
                 v-model="value1"
@@ -95,14 +98,20 @@
               />
             </div>
         </el-form-item>
-        <el-form-item label="考试名称" :label-width="formLabelWidth">
+        <el-form-item  :label-width="formLabelWidth">
+          <template #label>
+        <span style="color: red; margin-right:2px">* </span> 考试名称
+      </template>
           <el-input v-model="form.name" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="试卷" :label-width="formLabelWidth">
+        <el-form-item :label-width="formLabelWidth">
+          <template #label>
+        <span style="color: red; margin-right:2px">* </span> 试卷
+      </template>
           <!-- <el-input v-model="form.paperTitle" autocomplete="off" /> -->
           <el-select v-model="form.paperTitle" placeholder="请选择试卷">
             <el-option
-              v-for="paper in papers"
+              v-for="paper in papers2"
               :key="paper.id"
               :label="paper.title"
               :value="paper.id">
@@ -110,7 +119,10 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="考试限时" :label-width="formLabelWidth">
+        <el-form-item :label-width="formLabelWidth">
+          <template #label>
+        <span style="color: red; margin-right:2px">* </span> 考试限时
+      </template>
           <el-input v-model="form.timeLimit" autocomplete="off" placeholder="输入考试限时(分钟)" />
         </el-form-item>
       </el-form>
@@ -216,7 +228,7 @@ export default {
     };
   },
   computed: {
-      ...mapState(['exams', 'paper', 'paperQuestions', 'user', 'examsPages', 'papers']),
+      ...mapState(['exams', 'paper', 'paperQuestions', 'user', 'examsPages', 'papers', 'papers2']),
       totalPages() {
         console.log("pages",this.examsPages)
       return this.examsPages ;
@@ -258,7 +270,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['fetchExams', 'addPaper', 'addQuestionToPaper', 'removeFromPaper', 'fetchPaperQuestion', 'updatePaperQuestions', 'deleteExam', 'fetchExamPages', 'createExam', 'fetchPapers']),
+    ...mapActions(['fetchExams', 'addPaper', 'addQuestionToPaper', 'removeFromPaper', 'fetchPapers2', 'fetchPaperQuestion', 'updatePaperQuestions', 'deleteExam', 'fetchExamPages', 'createExam', 'fetchPapers']),
 
     getAll(){
       console.log("getall");
@@ -622,7 +634,7 @@ export default {
     console.log("fetch exam", this.dict)
     this.fetchExams(this.dict);
     this.fetchExamPages(this.dict['kind']);
-    this.fetchPapers(-1);
+    this.fetchPapers2(-1);
   }
 };
 </script>
@@ -638,6 +650,9 @@ export default {
   overflow: auto;
   display: flex;
   flex-direction: column;
+}
+.required {
+  color: red;
 }
 .form-row {
   display: flex;

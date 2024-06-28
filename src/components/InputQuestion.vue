@@ -4,7 +4,12 @@
     <form @submit.prevent="submitQuestion">
       <div class="form-row">
         <div class="form-group">
-          <label for="question-type">题目类型:</label>
+          
+          
+          <label for="question-type">
+            <span class="required">*</span>
+            题目类型:</label>
+          
           <select id="question-type" v-model="questionType">
             <option value="选择题">选择题</option>
             <option value="判断题">判断题</option>
@@ -13,11 +18,11 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="tag">标签:</label>
+          <label for="tag"><span class="required">* </span>标签:</label>
           <input type="text" id="tag" v-model="tag" placeholder="请输入标签" />
         </div>
         <div class="form-group">
-          <label for="difficulty">难度等级:</label>
+          <label for="difficulty"><span class="required">* </span>难度等级:</label>
           <select id="difficulty" v-model="difficulty">
             <option value="简单">简单</option>
             <option value="中等">中等</option>
@@ -25,39 +30,39 @@
           </select>
         </div>
         <div class="form-group" v-if="questionType === '选择题' || questionType === '判断题'">
-          <label for="correct-option">正确选项:</label>
+          <label for="correct-option"><span class="required">* </span>正确选项:</label>
           <select id="correct-option" v-model="answer">
-            <option v-if="questionType === '选择题'" value="A">A</option>
+            <option v-if="questionType === '选择题'" value="A"> A</option>
             <option v-if="questionType === '选择题'" value="B">B</option>
             <option v-if="questionType === '选择题'" value="C">C</option>
             <option v-if="questionType === '选择题'" value="D">D</option>
-            <option v-if="questionType === '判断题'" value="true">正确</option>
-            <option v-if="questionType === '判断题'" value="false">错误</option>
+            <option v-if="questionType === '判断题'" value="正确">正确</option>
+            <option v-if="questionType === '判断题'" value="错误">错误</option>
           </select>
         </div>
       </div>
       <div class="form-group">
-        <label for="question">题目:</label>
+        <label for="question"><span class="required">* </span>题目:</label>
         <textarea id="question" v-model="question" placeholder="请输入题目内容"></textarea>
       </div>
       <div class="form-group" v-if="questionType === '选择题'">
-        <label>A:</label>
+        <label><span class="required">* </span>A:</label>
         <input type="text" v-model="optionA" placeholder="请输入选项A的内容" />
       </div>
       <div class="form-group" v-if="questionType === '选择题'">
-        <label>B:</label>
+        <label><span class="required">* </span>B:</label>
         <input type="text" v-model="optionB" placeholder="请输入选项B的内容" />
       </div>
       <div class="form-group" v-if="questionType === '选择题'">
-        <label>C:</label>
+        <label><span class="required">* </span>C:</label>
         <input type="text" v-model="optionC" placeholder="请输入选项C的内容" />
       </div>
       <div class="form-group" v-if="questionType === '选择题'">
-        <label>D:</label>
+        <label><span class="required">* </span>D:</label>
         <input type="text" v-model="optionD" placeholder="请输入选项D的内容" />
       </div>
       <div class="form-group" v-if="questionType === '填空题' || questionType === '问答题'">
-        <label for="answer">答案:</label>
+        <label for="answer"><span class="required">* </span>答案:</label>
         <textarea id="answer" v-model="answer" placeholder="请输入答案"></textarea>
       </div>
       <div class="form-group">
@@ -110,9 +115,10 @@ export default {
       var _description = null;
       if (this.questionType === "选择题"){
         if(this.optionA && this.optionB&& this.optionC&& this.optionD){
-          _description = null;
+           _description = `${this.question}\n${optionsText}`;
+          
         }else{
-          _description = `${this.question}\n${optionsText}`;
+         _description = null;
         }
          
       }
@@ -132,7 +138,7 @@ export default {
       };
 
       const result = await this.addQuestion(newQuestion);
-      if (result.success=='success'){
+      if (result.success!=='error'){
           this.success('创建成功');
       } else {
         this.error(result.error);
@@ -328,5 +334,8 @@ button:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.required {
+  color: red;
 }
 </style>

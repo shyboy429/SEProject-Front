@@ -5,7 +5,7 @@
         <label>试卷管理</label>
       </div>
       <div class="form-group">
-        <el-button :disabled="(user.role !== 'ADMIN')" @click="automaticPaper" style="width: 80px; margin-left: 800px;">自动组卷</el-button>
+        <el-button :disabled="(user.role !== 'ADMIN')" @click="warning('暂未开放')" style="width: 80px; margin-left: 800px;">自动组卷</el-button>
       </div>
       <div class="form-group">
         <el-button type="success" :disabled="(user.role !== 'ADMIN')" plain @click="dialogTable2Visible = true; querySelected()" style="width: 80px;">已选试题</el-button>
@@ -75,7 +75,11 @@
     <!-- 创建试卷的对话框 -->
     <el-dialog v-model="dialogFormVisible" title="创建试卷">
       <el-form :model="form"  >
-        <el-form-item label="试卷名称" :label-width="formLabelWidth">
+        
+        <el-form-item  :label-width="formLabelWidth">
+                <template #label>
+        <span style="color: red; margin-right:2px">* </span> 试卷名称
+      </template>
           <el-input v-model="form.title" autocomplete="off" />
         </el-form-item>
         <el-form-item label="试卷介绍" :label-width="formLabelWidth">
@@ -524,6 +528,9 @@ export default {
   justify-content: space-between;
   margin-bottom: 15px;
   margin-left: 1px;
+}
+.required {
+  color: red;
 }
 .form-group {
   flex: 1;

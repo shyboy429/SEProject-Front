@@ -2,9 +2,10 @@
 
 import { createStore } from 'vuex';
 import axios from 'axios';
+import { message } from 'ant-design-vue';
 
 // 设置 Axios 基地址
-axios.defaults.baseURL = 'http://localhost:8181';
+axios.defaults.baseURL = 'http://47.93.170.188:8800';
 
 const store = createStore({
   state: {
@@ -14,6 +15,7 @@ const store = createStore({
     examAnswers: {},
     paper: [],
     papers: [],
+    papers2:[],
     examInfo: null,
     exams: [], // 存储考试列表
     question:[],
@@ -21,7 +23,8 @@ const store = createStore({
     papersPages:1,
     examsPages:1,
     totalCount2:0,
-    user: null, // 存储当前登录用户
+    user: null, // 存储当前登录用户,
+    users:null
   },
   mutations: {
     setExamAnswer(state, { questionId, answer }) {
@@ -31,6 +34,9 @@ const store = createStore({
     // 设置题目列表
     setPapers(state, papers) {
       state.papers = papers;
+    },
+    setPapers2(state, papers2) {
+      state.papers2 = papers2;
     },
     setExams(state, exams) {
       state.exams = exams;
@@ -97,6 +103,9 @@ const store = createStore({
     setExamsPages(state, pagenum){
       state.examsPages = pagenum;
     },
+    setUsers(state, users){
+      state.users = users;
+    },
     add(){
 
     }
@@ -118,7 +127,6 @@ const store = createStore({
       throw new Error('Registration failed');
     }
   },
-
     async submitExamAnswer({commit}, answer){
       try {
         // console.log(id);
@@ -194,6 +202,28 @@ const store = createStore({
         return error.response.data;
       }
     },
+
+    async updateUser({commit}, params){
+      try {
+        // console.log(id);
+        console.log('update');
+        const queryString = Object.keys(params)
+          .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+          .join('&&');
+  
+        const response = await axios.put(`/api/users?${queryString}`);
+        // const response = await axios.put('/api/users/', dict);
+        // commit('setPaperQuestions', response.data);
+        // const response2 = await axios.get('/api/papers');
+        // commit('setPapers', response2.data);
+        commit('add');
+        return response.data;
+      } catch (error) {
+        // 请求失败时，直接添加传入的数据到题目列表
+        commit('add');
+        return error.response.data;
+      }
+    },
     async deleteQuestion({commit}, id){
       try {
         console.log(id);
@@ -232,6 +262,15 @@ const store = createStore({
         commit('setPaperQuestions', []);
       }
     },
+    async fetchUsers({ commit}){
+      try {
+        const response = await axios.get('/api/users');
+        commit('setUsers', response.data);
+      } catch (error) {
+        // 请求失败时，设置空数据
+        commit('setUsers', []);
+      }
+    },
 
     async fetchExamQuestion({ commit}, id){
       try {
@@ -264,6 +303,20 @@ const store = createStore({
       } catch (error) {
         // 请求失败时，设置空数据
         commit('setPapers', []);
+      }
+    },
+    async fetchPapers2({ commit }, pageNum) {
+      try {
+        var response;
+        if (pageNum!==undefined){
+          response = await axios.get('/api/papers?pageNum='+ pageNum);
+        }else {
+          response = await axios.get('/api/papers');
+        }
+        commit('setPapers2', response.data);
+      } catch (error) {
+        // 请求失败时，设置空数据
+        commit('setPapers2', []);
       }
     },
     // 获取题目列表

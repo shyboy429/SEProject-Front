@@ -275,7 +275,7 @@ export default {
 
       setTimeout(() => {
         loadingInstance.close();
-        this.$router.push('/test3');
+        this.$router.push('/test');
       }, 700);
     },
     nextQuestion() {

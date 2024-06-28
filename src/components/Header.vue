@@ -3,10 +3,10 @@
         <div class="header">
             <!-- logo -->
             <div style="height: 100%;display:flex;">
-                <router-link to="/" class="header-logo">
+                <div  class="header-logo">
                     <img src="../assets/svg/logo.svg" style="height: 30px;"/>
-                    <h1 class="name">为考</h1>
-                </router-link>
+                    <h1 class="name">在线考试</h1>
+                </div>
                 <!-- 导航区 -->
                 <ul class="header-nav">
                    
@@ -18,6 +18,13 @@
              
                     <a-trigger style="margin-right:50px">
                         <a-button type="primary">{{'哈尔滨工业大学'}}</a-button>
+                        <template #content>
+                            <AuthCard style="margin-top:20px" :usrenerAuthInfo="userInfo"/>
+                        </template>
+                    </a-trigger>
+
+                    <a-trigger style="margin-right:50px">
+                        <a-button type="primary">{{user.username}}</a-button>
                         <template #content>
                             <AuthCard style="margin-top:20px" :usrenerAuthInfo="userInfo"/>
                         </template>
@@ -99,8 +106,15 @@
 // </script>
 
 <script>
+import { mapActions, mapState } from 'vuex';
+import { ElMessage } from 'element-plus';
+
 export default {
+    
   name: 'Header',
+    computed:{
+    ...mapState(['user'])
+  },
 }
 </script>
 

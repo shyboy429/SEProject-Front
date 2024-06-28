@@ -1,7 +1,9 @@
 <template>
   <div class="sidebar" style="margin-top: 80px;">
     <div class="p-4">
-      <img src="https://placehold.co/100x100" alt="Course Image" class="course-image mb-4">
+      <!-- <img src="https://placehold.co/100x100" alt="Course Image" class="course-image mb-4"> -->
+      <img :src="require('../assets/img/3.png')" alt="Background Image" class="background-image">
+
       <h2 class="course-title">JAVA从入门到精通</h2>
     </div>
     <nav class="mt-6">
@@ -49,5 +51,10 @@
 }
 .dark\:hover\:bg-zinc-700 {
   background-color: #374151;
+}
+.background-image {
+  width: 100px; /* 图片的宽度 */
+  height: 100px; /* 图片的高度 */
+  object-fit: cover; /* 保持图片的长宽比，裁剪超出部分 */
 }
 </style>
