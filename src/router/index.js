@@ -7,6 +7,7 @@ import ExamView from '../views/ExamView.vue'
 import ExamPage from '../components/ExamPage.vue';
 import OnlineExamView from '../views/OnlineExamView.vue';
 import ExamList from '../components/ExamList.vue';
+import RegisterView from '../views/RegisterView.vue';
 const routes = [
   { path: '/', component: LoginView },
   { path: '/home', component: HomeView },
@@ -15,7 +16,8 @@ const routes = [
   { path: '/test2', component: OnlineExamView},
   { path: '/test3', component: Test},
   { path: '/test4', component: ExamList},
-  { path: '/exam', component: ExamView}, 
+    { path: '/exam', component: ExamView }, 
+  {path:'/register',component:RegisterView},
   // { path: '/dashboard', component: DashboardView,
   //   children: [
   //     { path: 'question-bank', component: QuestionBankView },

@@ -2,7 +2,6 @@
 
 import { createStore } from 'vuex';
 import axios from 'axios';
-import { message } from 'ant-design-vue';
 
 // 设置 Axios 基地址
 axios.defaults.baseURL = 'http://localhost:8181';
@@ -105,7 +104,21 @@ const store = createStore({
   actions: {
     removeFromPaper({ commit }, id) {
       commit('removeQuestionFromPaper', id);
-    },
+      },
+      async register({ commit }, { id, username, password, role }) {
+    try {
+      const response = await axios.post('/api/users/register', { id, username, password, role });
+      commit('setUser', response.data);
+      return response.data;
+    } catch (error) {
+        console.error('注册失败：', error);
+    if (error.response && error.response.data) {
+      return error.response.data;
+    } else
+      throw new Error('Registration failed');
+    }
+  },
+
     async submitExamAnswer({commit}, answer){
       try {
         // console.log(id);
