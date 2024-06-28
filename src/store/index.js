@@ -2,6 +2,7 @@
 
 import { createStore } from 'vuex';
 import axios from 'axios';
+import { message } from 'ant-design-vue';
 
 // 设置 Axios 基地址
 axios.defaults.baseURL = 'http://localhost:8181';
@@ -141,9 +142,27 @@ const store = createStore({
         // const response2 = await axios.get('/api/papers');
         // commit('setPapers', response2.data);
         commit('add');
+        return response.data;
       } catch (error) {
         // 请求失败时，直接添加传入的数据到题目列表
         commit('add');
+        return error.response.data;
+      }
+    },
+    
+    async deleteExam({commit}, PaperID){
+      try {
+        // console.log(id);
+        console.log('update');
+        const response = await axios.delete('/api/exams/'+PaperID);
+        // const response2 = await axios.get('/api/papers');
+        // commit('setPapers', response2.data);
+        commit('add');
+        return response.data;
+      } catch (error) {
+        // 请求失败时，直接添加传入的数据到题目列表
+        commit('add');
+        return error.response.data;
       }
     },
     async updatePaperQuestions({commit}, dict){
@@ -155,9 +174,11 @@ const store = createStore({
         // const response2 = await axios.get('/api/papers');
         // commit('setPapers', response2.data);
         commit('add');
+        return response.data;
       } catch (error) {
         // 请求失败时，直接添加传入的数据到题目列表
         commit('add');
+        return error.response.data;
       }
     },
     async deleteQuestion({commit}, id){
@@ -168,9 +189,11 @@ const store = createStore({
         // const response2= await axios.get('/api/questions');
         // commit('setQuestions', response2.data);
         commit('add');
+        return response.data;
       } catch (error) {
         // 请求失败时，直接添加传入的数据到题目列表
         commit('add');
+        return error.response.data
       }
     },
     async updateQuestion({commit}, form) {
@@ -179,9 +202,11 @@ const store = createStore({
         const response = await axios.post('/api/questions/'+form.id, form.question);
         
         commit('add');
+        return response.data
       } catch (error) {
         // 请求失败时，直接添加传入的数据到题目列表
         commit('add');
+        return error.response.data
       }
     },
 
@@ -234,9 +259,11 @@ const store = createStore({
   
         const response = await axios.get(`/api/questions/`+id);
         commit('setQuestion', response.data); // Assuming you have a Vuex store
+        return response.data;
       } catch (error) {
         // Handle request failure
         commit('setQuestion', []);
+        return error.response.data;
       }
     },
     // 获取题目列表
@@ -261,7 +288,7 @@ const store = createStore({
         // Construct query string from params
         const queryString = Object.keys(params)
           .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-          .join('&');
+          .join('&&');
   
         const response = await axios.get(`/api/questions/search?${queryString}`);
         commit('setQuestions', response.data); // Assuming you have a Vuex store
@@ -335,11 +362,13 @@ const store = createStore({
       try {
         const response = await axios.post('/api/papers', paper);
         // commit('addPaper', response.data);
-        return {success:"success"};
+        // return {success:"success"};
+        return response.data;
       } catch (error) {
         // 请求失败时，直接添加传入的数据到题目列表
         // commit('addPaper', paper);
-        return {success:"error"};
+        // return {success:"error"};
+        return error.response.data;
       }
     },
     // 添加新题目
@@ -347,9 +376,13 @@ const store = createStore({
       try {
         const response = await axios.post('/api/questions', question);
         commit('addQuestion', response.data);
+        return response.data;
       } catch (error) {
         // 请求失败时，直接添加传入的数据到题目列表
+        console.log("error",error);
         commit('addQuestion', question);
+        return error.response.data;
+        return {success:"error", message:"网络错误"}
       }
     },
     // 获取考试列表
@@ -465,11 +498,13 @@ const store = createStore({
       try {
         const response = await axios.post('/api/exams', exam);
         // commit('addExam', response.data);
-        return {success:"success"};
+        // return {success:"success"};
+        return response.data;
       } catch (error) {
         // 请求失败时，直接添加传入的数据到考试列表
         // commit('addExam', exam);
-        return {success:"error"};
+        // return {success:"error"};
+        return error.response.data
       }
     },
     // 提交考试
@@ -487,7 +522,7 @@ const store = createStore({
         commit('setUser', response.data);
         return { success: true, role: response.data.role};
       } catch (error) {
-        return { success: false, message: error.response ? error.response.data.message : '网络错误' };
+        return { success: false, message: '账号或密码错误' };
       }
     }
   },

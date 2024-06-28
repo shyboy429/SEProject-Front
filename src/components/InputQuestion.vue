@@ -95,13 +95,13 @@ export default {
   methods: {
     ...mapActions(['addQuestion']),
     submit (){
-      ElMessage({
-        message: '提交成功',
-        type: 'success',
-        customClass: 'custom-message-class',
-        duration: 3000,
-        showClose: true
-      });
+      // ElMessage({
+      //   message: '提交成功',
+      //   type: 'success',
+      //   customClass: 'custom-message-class',
+      //   duration: 3000,
+      //   showClose: true
+      // });
       
     },
 
@@ -109,7 +109,12 @@ export default {
       const optionsText = `A.${this.optionA}\nB.${this.optionB}\nC.${this.optionC}\nD.${this.optionD}`;
       var _description = null;
       if (this.questionType === "选择题"){
-         _description = `${this.question}\n${optionsText}`;
+        if(this.optionA && this.optionB&& this.optionC&& this.optionD){
+          _description = null;
+        }else{
+          _description = `${this.question}\n${optionsText}`;
+        }
+         
       }
       else {
          _description = `${this.question}`;
@@ -126,7 +131,12 @@ export default {
         createdBy: this.user.username
       };
 
-      await this.addQuestion(newQuestion);
+      const result = await this.addQuestion(newQuestion);
+      if (result.success=='success'){
+          this.success('创建成功');
+      } else {
+        this.error(result.error);
+      }
       this.resetForm();
     },
     resetForm() {
@@ -140,6 +150,33 @@ export default {
       this.optionD = '';
       this.answer = '';
       this.analysis = '';
+    },
+    success(ms){
+      ElMessage({
+        message: ms,
+        type: 'success',
+        customClass: 'custom-message-class',
+        duration: 3000,
+        showClose: true
+      });
+    },
+    warning(ms){
+      ElMessage({
+        message: ms,
+        type: 'warning',
+        customClass: 'custom-message-class',
+        duration: 3000,
+        showClose: true
+      });
+    },
+    error(ms){
+      ElMessage({
+        message: ms,
+        type: 'error',
+        customClass: 'custom-message-class',
+        duration: 3000,
+        showClose: true
+      });
     }
   }
 };

@@ -38,9 +38,9 @@
     </div>
                     <!-- 表格数据绑定和默认宽度 -->
               
-  <el-table :data="tableData" style="width: 100%; margin-left: 6%;">
+  <el-table :data="tableData" style="width: 100%; margin-left: 6%;" @sort-change="sortChange" >
     <el-table-column type="index" width="50"></el-table-column>
-    <el-table-column prop="question" label="问题" width="300">
+    <el-table-column prop="question" sortable='custom' label="问题" width="300">
       <template #default="scope">
         <el-tooltip
           class="item"
@@ -55,10 +55,10 @@
         </el-tooltip>
       </template>
     </el-table-column>
-    <el-table-column prop="questionType" label="题型" width="180"></el-table-column>
-    <el-table-column prop="tag" label="标签" width="180"></el-table-column>
-    <el-table-column prop="difficulty" label="难度" width="120"></el-table-column>
-    <el-table-column prop="createdBy" label="创建人" width="120"></el-table-column>
+    <el-table-column prop="questionType" sortable='custom' label="题型" width="180"></el-table-column>
+    <el-table-column prop="tag" sortable='custom'  label="标签" width="180"></el-table-column>
+    <el-table-column prop="difficulty" sortable='custom' label="难度" width="120"></el-table-column>
+    <el-table-column prop="createdBy"   sortable='custom' label="创建人" width="120"></el-table-column>
     <el-table-column label="操作" width="220" header-align="center">
       <template #default="scope">
         <div style="display: flex; justify-content: space-between;">
@@ -103,15 +103,19 @@
         </template>
       </el-table-column>
       <el-table-column prop="type" label="题型" width="180">
-        <template #default="{ row, column }">
-          <el-input
-            v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
-            @blur="blurValueInput(row, column)"
-            @keyup.enter="blurValueInput(row, column)"
-            v-model="row.type"
-          />
-          <span v-else>{{ row.type }}</span>
-        </template>
+    <template #default="{ row, column }">
+      <el-select
+        v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
+        @change="handleTypeChange(row)"
+        v-model="row.type"
+      >
+        <el-option label="选择题" value="选择题"></el-option>
+        <el-option label="判断题" value="判断题"></el-option>
+        <el-option label="填空题" value="填空题"></el-option>
+        <el-option label="问答题" value="问答题"></el-option>
+      </el-select>
+      <span v-else>{{ row.type }}</span>
+    </template>
       </el-table-column>
       <el-table-column prop="tag" label="标签" width="180">
         <template #default="{ row, column }">
@@ -125,26 +129,36 @@
         </template>
       </el-table-column>
       <el-table-column prop="difficultLevel" label="难度" width="120">
-        <template #default="{ row, column }">
-          <el-input
-            v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
-            @blur="blurValueInput(row, column)"
-            @keyup.enter="blurValueInput(row, column)"
-            v-model="row.difficultLevel"
-          />
-          <span v-else>{{ row.difficultLevel }}</span>
-        </template>
+    <template #default="{ row, column }">
+      <el-select
+        v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
+        @change="blurValueInput(row, column)"
+        v-model="row.difficultLevel"
+      >
+        <el-option label="简单" value="简单"></el-option>
+        <el-option label="中等" value="中等"></el-option>
+        <el-option label="困难" value="困难"></el-option>
+      </el-select>
+      <span v-else>{{ row.difficultLevel }}</span>
+    </template>
       </el-table-column>
       <el-table-column prop="answer" label="答案" width="120">
-        <template #default="{ row, column }">
-          <el-input
-            v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id"
-            @blur="blurValueInput(row, column)"
-            @keyup.enter="blurValueInput(row, column)"
-            v-model="row.answer"
-          />
-          <span v-else>{{ row.answer }}</span>
-        </template>
+    <template #default="{ row, column }">
+      <div v-if="tableRowEditId === row.id && tableColumnEditIndex === column.id">
+        <el-select v-if="row.type === '选择题'" v-model="row.answer">
+          <el-option label="A" value="A"></el-option>
+          <el-option label="B" value="B"></el-option>
+          <el-option label="C" value="C"></el-option>
+          <el-option label="D" value="D"></el-option>
+        </el-select>
+        <el-select v-else-if="row.type === '判断题'" v-model="row.answer">
+          <el-option label="正确" value="正确"></el-option>
+          <el-option label="错误" value="错误"></el-option>
+        </el-select>
+        <el-input v-else v-model="row.answer" @blur="blurValueInput(row, column)" @keyup.enter="blurValueInput(row, column)" />
+      </div>
+      <span v-else>{{ row.answer }}</span>
+    </template>
       </el-table-column>
       <el-table-column label="操作" width="120" header-align="center">
         <template #default="{ row }">
@@ -193,6 +207,7 @@ export default {
       searchKeyword: '',
       filterQuestionType: '',
       queryParams : {},
+      orderArray: [],
       filterDifficulty: '',
       currentPage: 1,
       dialogTableVisible: false,
@@ -274,6 +289,15 @@ export default {
     // viewQuestion(id){
 
       // },
+    handleTypeChange(row) {
+      if (row.type === '选择题') {
+        row.answer = 'A';
+      } else if (row.type === '判断题') {
+        row.answer = '正确';
+      } else {
+        row.answer = '';
+      }
+    },
     showUnitInput(row, column) {
       // 赋值给定义的变量
       this.tableRowEditId = row.id; // 确定点击的单元格在哪行
@@ -299,8 +323,14 @@ export default {
       };
       console.log(newQuestion)
       // console.log(this.questions)
-      await this.updateQuestion({'id':row.id, 'question':newQuestion});
-      this.success('提交成功');
+      const result = await this.updateQuestion({'id':row.id, 'question':newQuestion});
+      if (result.success!=='error'){
+          this.success('修改成功');
+      } else {
+        this.error(result.error);
+      }
+      // console.log('编辑操作:', index, row);
+      // this.success('提交成功');
       this.queryParams.pageNum = this.currentPage;
       this.fetchQuestions(this.queryParams);
     },
@@ -375,18 +405,148 @@ export default {
     },
     handleEdit(index, row) {
       // 处理编辑逻辑
-      this.fetchFileteredQuestion(row.id)
-      console.log('编辑操作:', index, row);
+      const result = this.fetchFileteredQuestion(row.id)
+      // if (result.success=='success'){
+      //     this.success('修改成功');
+      // } else {
+      //   this.error(result.error);
+      // }
+      // console.log('编辑操作:', index, row);
 
     },
     async handleDelete(index, row) {
       const questionId = row.id; // 获取 question id
-      await this.deleteQuestion(questionId);
+      const result = await this.deleteQuestion(questionId);
       this.queryParams.pageNum = this.currentPage;
       await this.fetchQuestions(this.queryParams);
-      this.success('删除成功');
+      if (result.success=='success'){
+          this.success('删除成功');
+      } else {
+        this.error(result.error);
+      }
       console.log('删除操作:', questionId);
     },
+          sortMethod(obj1, obj2) {
+        console.log(obj1, obj2)
+      },
+    sortChange({prop, order}) {
+        // console.log(column, key, order)
+        // console.log("sortrrrrrrrrrr", order)
+        console.log("sortrrrrrrrrrr", prop)
+        console.log("sortrrrrrrrrrr", order)
+              console.log("sortrrrrrrrrrr", order)
+      if (prop === 'tag') {
+        this.sortTag('tag', order);
+      }
+      if (prop === 'question') {
+        this.sortTag('description', order);
+      }
+      if (prop === 'questionType') {
+        this.sortTag('type', order);
+      }
+      if (prop === 'difficulty') {
+        this.sortTag('difficultLevel', order);
+      }
+      if (prop === 'createdBy') {
+        this.sortTag('createdBy', order);
+      }
+    },
+    handleSortChange({ prop, order }) {
+    if (order) {
+      // 参与排序
+      let flagIsHave = false;
+      this.orderArray.forEach((element) => {
+        if (element.prop === prop) {
+          element.order = order;
+          flagIsHave = true;
+        }
+      });
+      if (!flagIsHave) {
+        this.orderArray.push({
+          prop: prop,
+          order: order,
+        });
+      }
+    } else {
+      // 不参与排序
+      this.orderArray = this.orderArray.filter((element) => {
+        return element.prop !== prop
+      });
+    }
+    // 调后端接口进行排序操作, this.orderArray 就是最终排序后的集合
+    console.log(this.orderArray);
+  },
+
+    sortTag(type, order) {
+      if (type === 'tag') {
+        if (order === 'ascending') {
+          this.queryParams.orderAttribute='tag';
+          this.queryParams.order = 'asc';
+        } else if (order === 'descending') {
+          this.queryParams.orderAttribute='tag';
+          this.queryParams.order = 'desc';
+        } else {
+          delete this.queryParams.orderAttribute
+          delete this.queryParams.tag; // 删除 order 字段
+        }
+        
+      } else
+
+      if (type === 'description') {
+        if (order === 'ascending') {
+          this.queryParams.orderAttribute='description';
+          this.queryParams.order = 'asc';
+        } else if (order === 'descending') {
+          this.queryParams.orderAttribute='description';
+          this.queryParams.order = 'desc';
+        } else {
+          delete this.queryParams.orderAttribute
+          delete this.queryParams.order; // 删除 order 字段
+        }
+      }else
+
+      if (type === 'type') {
+        this.queryParams.orderAttribute='type';
+        if (order === 'ascending') {
+          this.queryParams.order = 'asc';
+        } else if (order === 'descending') {
+          this.queryParams.order = 'desc';
+        } else {
+          delete this.queryParams.orderAttribute
+          delete this.queryParams.order; // 删除 order 字段
+        }
+      }else
+
+      if (type === 'difficultLevel') {
+        this.queryParams.orderAttribute='difficultLevel';
+        if (order === 'ascending') {
+          this.queryParams.order = 'asc';
+        } else if (order === 'descending') {
+          this.queryParams.order = 'desc';
+        } else {
+          delete this.queryParams.orderAttribute
+          delete this.queryParams.order; // 删除 order 字段
+        }
+      }else
+
+      if (type === 'createdBy') {
+        this.queryParams.orderAttribute='createdBy';
+        if (order === 'ascending') {
+          this.queryParams.order = 'asc';
+        } else if (order === 'descending') {
+          this.queryParams.order = 'desc';
+        } else {
+          delete this.queryParams.orderAttribute
+          delete this.queryParams.order; // 删除 order 字段
+        }
+      }else{
+        delete this.queryParams.orderAttribute
+        delete this.queryParams.order;
+      }
+      
+      this.fetchQuestions(this.queryParams);
+    },
+
     success(ms){
       ElMessage({
         message: ms,
@@ -400,6 +560,15 @@ export default {
       ElMessage({
         message: ms,
         type: 'warning',
+        customClass: 'custom-message-class',
+        duration: 3000,
+        showClose: true
+      });
+    },
+    error(ms){
+      ElMessage({
+        message: ms,
+        type: 'error',
         customClass: 'custom-message-class',
         duration: 3000,
         showClose: true

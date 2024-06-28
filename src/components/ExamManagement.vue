@@ -99,7 +99,15 @@
           <el-input v-model="form.name" autocomplete="off" />
         </el-form-item>
         <el-form-item label="试卷" :label-width="formLabelWidth">
-          <el-input v-model="form.paperTitle" autocomplete="off" />
+          <!-- <el-input v-model="form.paperTitle" autocomplete="off" /> -->
+          <el-select v-model="form.paperTitle" placeholder="请选择试卷">
+            <el-option
+              v-for="paper in papers"
+              :key="paper.id"
+              :label="paper.title"
+              :value="paper.id">
+            </el-option>
+          </el-select>
         </el-form-item>
 
         <el-form-item label="考试限时" :label-width="formLabelWidth">
@@ -208,7 +216,7 @@ export default {
     };
   },
   computed: {
-      ...mapState(['exams', 'paper', 'paperQuestions', 'user', 'examsPages']),
+      ...mapState(['exams', 'paper', 'paperQuestions', 'user', 'examsPages', 'papers']),
       totalPages() {
         console.log("pages",this.examsPages)
       return this.examsPages ;
@@ -223,6 +231,7 @@ export default {
         endTime: exam.endTime,
         durationTime: exam.durationTime+'分钟',
         paperID: exam.paperTitle,
+        id: exam.id
       }));
       },
         paperData() {
@@ -249,7 +258,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['fetchExams', 'addPaper', 'addQuestionToPaper', 'removeFromPaper', 'fetchPaperQuestion', 'updatePaperQuestions', 'deleteExam', 'fetchExamPages', 'createExam']),
+    ...mapActions(['fetchExams', 'addPaper', 'addQuestionToPaper', 'removeFromPaper', 'fetchPaperQuestion', 'updatePaperQuestions', 'deleteExam', 'fetchExamPages', 'createExam', 'fetchPapers']),
 
     getAll(){
       console.log("getall");
@@ -330,10 +339,10 @@ export default {
       };
       this.dict['pageNum'] = this.currentPage
       await this.fetchExams(this.dict);
-      if (result.success=='success'){
-          this.success('创建成功');
+      if (result.success){
+          this.error(result.error);
       } else {
-        this.error('创建失败');
+        this.success('创建成功');
       }
       this.fetchExamPages(this.dict['kind']);
     },
@@ -382,6 +391,7 @@ export default {
       console.log('查看试卷:', paperId);
     },
     async handleExamDelete(index, row){
+      console.log("rowwww:", row)
       const paperId = row.id; // 获取 question id
       const result = await this.deleteExam(paperId);
       
@@ -393,10 +403,12 @@ export default {
       //   duration: 3000,
       //   showClose: true
       // });
-      if (result.success=='success'){
-          this.success('创建成功');
+      if (result.success!=='error'){
+        this.success('删除成功');
+        
+    
       } else {
-        this.error(result.message);
+        this.error(result.error);
       }
       
       await this.fetchExamPages(this.dict.kind);
@@ -610,6 +622,7 @@ export default {
     console.log("fetch exam", this.dict)
     this.fetchExams(this.dict);
     this.fetchExamPages(this.dict['kind']);
+    this.fetchPapers(-1);
   }
 };
 </script>

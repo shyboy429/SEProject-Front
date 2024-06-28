@@ -239,10 +239,10 @@ export default {
         updateTime: ''
       };
       await this.fetchPapers(this.currentPage);
-      if (result.success=='success'){
+      if (!result.success){
           this.success('创建成功');
       } else {
-        this.error('创建失败');
+        this.error(result.error);
       }
       this.fetchPapersPages();
     },
@@ -291,16 +291,12 @@ export default {
     },
     async handlePaperDelete(index, row){
       const paperId = row.id; // 获取 question id
-      await this.deletePaper(paperId);
-      
-      // this.paper_id = row.id;
-      ElMessage({
-        message: '删除成功',
-        type: 'success',
-        customClass: 'custom-message-class',
-        duration: 3000,
-        showClose: true
-      });
+      const result = await this.deletePaper(paperId);
+      if (result.success!=='error'){
+          this.success('删除成功');
+      } else {
+        this.error(result.error);
+      }
       await this.fetchPapersPages();
       this.fetchPapers(this.currentPage);
     },
@@ -313,15 +309,13 @@ export default {
       const paperID = this.paper_id
 
       console.log(row);
-      await this.updatePaperQuestions({'paperid':paperID, 'questionid':row.id});
+      const result = await this.updatePaperQuestions({'paperid':paperID, 'questionid':row.id});
       this.fetchPapers(this.currentPage);
-      ElMessage({
-        message: '移出成功',
-        type: 'success',
-        customClass: 'custom-message-class',
-        duration: 3000,
-        showClose: true
-      });
+      if (result.success!=='error'){
+          this.success('删除成功');
+      } else {
+        this.error(result.error);
+      }
     },
     // handleDelete(index, row) {
     //   this.tableData.splice(index, 1);
